@@ -18,6 +18,9 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Data.SQLite;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using System.Data;
 
 namespace GetStockInfo
 {
@@ -32,11 +35,27 @@ namespace GetStockInfo
         DispatcherTimer timer = new DispatcherTimer();
         public bool IsOK = false;
         int pos = 0;
-        private List<string> codeList = new List<string> { "sh601012", "sz000858", "sh603589", "sz000596", "sz002727", "sh603883", "sz002422", "sz002044", "sh603987", "sz300406" };
+        private List<string> codeList = new List<string>();
+        string connectionString = string.Empty;
+        string codesTableName = string.Empty;
         public MainWindow()
         {
             InitializeComponent();
 
+            var s = File.ReadAllText("config.json");
+            JObject jo = (JObject)JsonConvert.DeserializeObject(s);
+            connectionString = jo["ConnectionString"].ToString();
+            codesTableName = jo["CodeSource"].ToString();
+            using (var conn = new SQLiteConnection(connectionString))
+            {
+                var ada = new SQLiteDataAdapter($"select * from {codesTableName}", conn);
+                var dt = new DataTable();
+                ada.Fill(dt);
+                foreach(DataRow dr in dt.Rows)
+                {
+                    codeList.Add($"{dr["Exchange"].ToString()}{dr["Code"].ToString()}");
+                }
+            }
             SuppressScriptErrors(web, true);
 
             web.Navigated += (o, ex) => {
@@ -54,12 +73,12 @@ namespace GetStockInfo
                     }
                 }));
             };
-            Loaded += (s, e)=> GetStockInfo(codeList);
+            Loaded += (sender, e)=> GetStockInfo(codeList);
         }
 
         public void WriteData(StockInfo data)
         {
-            using (var conn = new SQLiteConnection(@"Data Source=C:\Users\Administrator\Desktop\SQLiteStudio\stock.db;Version=3;UseUTF16Encoding=True;"))
+            using (var conn = new SQLiteConnection(connectionString))
             {
                 conn.Open();
                 var cmd = new SQLiteCommand($"delete from StockStatus where Code = '{data.Code.Code}'", conn);
@@ -89,10 +108,6 @@ namespace GetStockInfo
                 cmd.Parameters.Add(new SQLiteParameter("@Timestamp", data.Timestamp));
                 cmd.ExecuteNonQuery();
             }
-            //using (StreamWriter sw = new StreamWriter(dataFileName, true))
-            //{
-            //    sw.WriteLine(data);
-            //}
         }
 
         public void GetStockInfo(List<string> codeList)
@@ -147,6 +162,8 @@ namespace GetStockInfo
                     {
                         si.Name = ((child.children[0] as IHTMLElement).children[0] as IHTMLElement).innerText;
                         si.Code = StockCode.Parse(((child.children[0] as IHTMLElement).children[1] as IHTMLElement).innerText);
+
+                        lblMessage.Content = $"{pos}/{codeList.Count} {si.Name} {si.Code}";
                     }
                     else if (child.className.Contains("content"))
                     {
