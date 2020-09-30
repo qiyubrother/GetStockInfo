@@ -28,7 +28,7 @@ namespace RecommendStock
             var dt = new DataTable();
             var sw = new StreamWriter(System.IO.Path.Combine(fi.Directory.FullName, $"RecommandStock.csv"), false, Encoding.UTF8);
             var lstRecommandStock = new List<RecommendStock>();
-
+            Console.WriteLine(connectionString);
             using (var conn = new SQLiteConnection(connectionString))
             {
                 var ada = new SQLiteDataAdapter($"select * from StockStatus", conn);
@@ -58,20 +58,22 @@ namespace RecommendStock
                     var exchange = dr["Exchange"].ToString().ToLower();
                     var name = dr["Name"].ToString(); // 名称
                     decimal.TryParse(dr["Price"].ToString(), out decimal price); // 价格
-                    decimal.TryParse(dr["ZhangFuDianShu"].ToString(), out decimal zhangFuDianShu); // 涨幅
-                    decimal.TryParse(dr["ZhangFuBiLv"].ToString(), out decimal zhangFuBiLv); // 涨幅比率
+                    //decimal.TryParse(dr["ZhangFuDianShu"].ToString(), out decimal zhangFuDianShu); // 涨幅
+                    //decimal.TryParse(dr["ZhangFuBiLv"].ToString(), out decimal zhangFuBiLv); // 涨幅比率
                     decimal.TryParse(dr["ZuoShou"].ToString(), out decimal zuoShou); // 昨收
                     decimal.TryParse(dr["JinKai"].ToString(), out decimal jinKai); // 今开
                     decimal.TryParse(dr["ZuiGao"].ToString(), out decimal zuiGao) ; // 最高
                     decimal.TryParse(dr["ZuiDi"].ToString(), out decimal zuiDi); // 最低
-                    decimal.TryParse(dr["ChengJiaoLiang"].ToString(), out decimal chengJiaoLiang); // 成交量
-                    decimal.TryParse(dr["ChengJiaoE"].ToString(), out decimal chengJiaoE); // 成交额
-                    decimal.TryParse(dr["ZongShiZhi"].ToString(), out decimal zongShiZhi); // 总市值
-                    decimal.TryParse(dr["LiuTongShiZhi"].ToString(), out decimal liuTongShiZhi); // 流通市值
-                    decimal.TryParse(dr["HuanShouLv"].ToString(), out decimal huanShouLv); // 换手率
-                    decimal.TryParse(dr["ShiJingLv"].ToString(), out decimal shiJingLv); // 市净率
-                    decimal.TryParse(dr["ZhenFu"].ToString(), out decimal zhenFu); // 振幅
-                    decimal.TryParse(dr["ShiYingLv"].ToString(), out decimal shiYingLv); // 市盈率
+                    //decimal.TryParse(dr["ChengJiaoLiang"].ToString(), out decimal chengJiaoLiang); // 成交量
+                    //decimal.TryParse(dr["ChengJiaoE"].ToString(), out decimal chengJiaoE); // 成交额
+                    //decimal.TryParse(dr["ZongShiZhi"].ToString(), out decimal zongShiZhi); // 总市值
+                    //decimal.TryParse(dr["LiuTongShiZhi"].ToString(), out decimal liuTongShiZhi); // 流通市值
+                    //decimal.TryParse(dr["HuanShouLv"].ToString(), out decimal huanShouLv); // 换手率
+                    //decimal.TryParse(dr["ShiJingLv"].ToString(), out decimal shiJingLv); // 市净率
+                    //decimal.TryParse(dr["ZhenFu"].ToString(), out decimal zhenFu); // 振幅
+                    //decimal.TryParse(dr["ShiYingLv"].ToString(), out decimal shiYingLv); // 市盈率
+
+                    var zhangFuDianShu = price - jinKai;
 
                     if (name.StartsWith("ST") ||
                         name.StartsWith("*ST") ||
@@ -82,6 +84,7 @@ namespace RecommendStock
                     {
                         continue;
                     }
+
                     if (jinKai >= zuoShou && zuiDi > 0) // 高开
                     {
                         var hLevel = 0;
