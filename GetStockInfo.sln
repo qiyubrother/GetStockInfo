@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.1062
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30517.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetStockInfo", "GetStockInfo\GetStockInfo.csproj", "{0936FBAB-4B69-4E39-A989-E2A63B0AA2A3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetStockCode", "GetStockCode\GetStockCode.csproj", "{C087D412-7F94-47E3-B17F-860C4ACF9D6E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecommendStock", "RecommendStock\RecommendStock.csproj", "{9EFB4D93-BADD-44DA-A452-1F22AAFC18A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{C087D412-7F94-47E3-B17F-860C4ACF9D6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C087D412-7F94-47E3-B17F-860C4ACF9D6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C087D412-7F94-47E3-B17F-860C4ACF9D6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EFB4D93-BADD-44DA-A452-1F22AAFC18A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EFB4D93-BADD-44DA-A452-1F22AAFC18A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EFB4D93-BADD-44DA-A452-1F22AAFC18A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EFB4D93-BADD-44DA-A452-1F22AAFC18A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

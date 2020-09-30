@@ -103,7 +103,7 @@ namespace GetStockInfo
 
     public class StockCode
     {
-        private StockCode() { }
+        public StockCode() { }
 
         public string Code { get; set; }
         public Exchange Exchange { get; set; }

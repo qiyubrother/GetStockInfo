@@ -21,6 +21,7 @@ using System.Data.SQLite;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Data;
+using System.Diagnostics;
 
 namespace GetStockInfo
 {
@@ -42,16 +43,20 @@ namespace GetStockInfo
         {
             InitializeComponent();
 
-            var s = File.ReadAllText("config.json");
+            var fi = new FileInfo(Process.GetCurrentProcess().MainModule.FileName);
+            var s = File.ReadAllText(System.IO.Path.Combine(fi.Directory.FullName, "config.json"));
+            var dbPath = System.IO.Path.Combine(fi.Directory.Parent.Parent.FullName, "db");
             JObject jo = (JObject)JsonConvert.DeserializeObject(s);
             connectionString = jo["ConnectionString"].ToString();
+            connectionString = connectionString.Replace("<path>", dbPath);
             codesTableName = jo["CodeSource"].ToString();
+
             using (var conn = new SQLiteConnection(connectionString))
             {
-                var ada = new SQLiteDataAdapter($"select * from {codesTableName}", conn);
+                var ada = new SQLiteDataAdapter($"{codesTableName}", conn);
                 var dt = new DataTable();
                 ada.Fill(dt);
-                foreach(DataRow dr in dt.Rows)
+                foreach (DataRow dr in dt.Rows)
                 {
                     codeList.Add($"{dr["Exchange"].ToString()}{dr["Code"].ToString()}");
                 }
@@ -61,7 +66,14 @@ namespace GetStockInfo
             web.Navigated += (o, ex) => {
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    Compute();
+                    try
+                    {
+                        Compute();
+                    }
+                    catch(Exception e)
+                    {
+
+                    }
                     pos++;
                     if (pos < codeList.Count)
                     {

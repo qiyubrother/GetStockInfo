@@ -1,0 +1,3 @@
+{
+  "ConnectionString": "Data Source=.\\stock.db;Version=3;UseUTF16Encoding=True;"
+}
