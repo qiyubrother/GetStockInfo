@@ -40,6 +40,7 @@ namespace GetStockInfoFast
                     codeList.Add($"{dr["Exchange"].ToString()}{dr["Code"].ToString()}");
                 }
             }
+            Console.WriteLine("Collecting data...");
             codeList.AsParallel().ForAll((code) =>
             {
                 var s = GetHtmltxt($"http://hq.sinajs.cn/list={code}");
@@ -51,7 +52,7 @@ namespace GetStockInfoFast
                 else if (s.Length > 30)
                 {
                     // 存在
-                    Console.WriteLine($"{code}");
+                    //Console.WriteLine($"{code}");
                     var data = arr[1].Substring(1).Split(',');
                     var name = data[0]; // 名称
                     decimal.TryParse(data[1], out decimal jinKai); // 今开
@@ -73,23 +74,24 @@ namespace GetStockInfoFast
                     rowDatas.Add(rowData);
                 }
             });
-            Console.WriteLine("Save to database!");
+            Console.WriteLine("Saving data to database...");
             using (var conn = new SQLiteConnection(connectionString))
             {
                 conn.Open();
-                var cmdFast = new SQLiteCommand($"PRAGMA synchronous = OFF;", conn);
-                cmdFast.ExecuteNonQuery();
+                var trans = conn.BeginTransaction();
+                //var cmdFast = new SQLiteCommand($"PRAGMA synchronous = OFF;", conn);
+                //cmdFast.ExecuteNonQuery();
 
                 var pos = 1;
                 foreach(var data in rowDatas)
                 {
-                    Console.WriteLine($"{pos++}/{rowDatas.Count}");
+                    //Console.WriteLine($"{pos++}/{rowDatas.Count}");
                     var ada = new SQLiteDataAdapter($"select count(*) from StockStatus where Code = '{data.Code}'", conn);
                     var dt = new DataTable();
                     ada.Fill(dt);
                     if (Convert.ToInt32(dt.Rows[0][0]) > 0)
                     {
-                        var cmdDelete = new SQLiteCommand($"delete from StockStatus where Code = '{data.Code}'", conn);
+                        var cmdDelete = new SQLiteCommand($"delete from StockStatus where Code = '{data.Code}'", conn, trans);
                         cmdDelete.ExecuteNonQuery();
                     }
                     if (data.Name.StartsWith("ST") ||
@@ -100,7 +102,7 @@ namespace GetStockInfoFast
                     {
                         continue;
                     }
-                    var cmd = new SQLiteCommand($"INSERT INTO StockStatus(Code, Exchange, Name, Price, ZuoShou, JinKai, ZuiGao, ZuiDi, Timestamp) VALUES (@Code, @Exchange, @Name, @Price, @ZuoShou, @JinKai, @ZuiGao, @ZuiDi, @Timestamp)", conn);
+                    var cmd = new SQLiteCommand($"INSERT INTO StockStatus(Code, Exchange, Name, Price, ZuoShou, JinKai, ZuiGao, ZuiDi, Timestamp) VALUES (@Code, @Exchange, @Name, @Price, @ZuoShou, @JinKai, @ZuiGao, @ZuiDi, @Timestamp)", conn, trans);
                     cmd.Parameters.Clear();
                     cmd.Parameters.Add(new SQLiteParameter("@Code", data.Code));
                     cmd.Parameters.Add(new SQLiteParameter("@Exchange", data.Exchange.ToString()));
@@ -113,6 +115,7 @@ namespace GetStockInfoFast
                     cmd.Parameters.Add(new SQLiteParameter("@Timestamp", data.Timestamp));
                     cmd.ExecuteNonQuery();
                 }
+                trans.Commit();
             }
             Console.WriteLine("OK!");
         }

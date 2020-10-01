@@ -85,7 +85,7 @@ namespace RecommendStock
                         continue;
                     }
 
-                    if (jinKai >= zuoShou && zuiDi > 0) // 高开
+                    if (jinKai >= zuoShou && zuiDi > 0 && jinKai < price) // 高开
                     {
                         var hLevel = 0;
                         var tLevel = 0;
