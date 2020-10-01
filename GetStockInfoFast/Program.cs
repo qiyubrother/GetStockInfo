@@ -41,7 +41,8 @@ namespace GetStockInfoFast
                 }
             }
             Console.WriteLine("Collecting data...");
-            codeList.AsParallel().ForAll((code) =>
+            //codeList.AsParallel().ForAll((code) =>
+            foreach(var code in codeList)
             {
                 var s = GetHtmltxt($"http://hq.sinajs.cn/list={code}");
                 var arr = s.Split('=');
@@ -73,7 +74,7 @@ namespace GetStockInfoFast
                     };
                     rowDatas.Add(rowData);
                 }
-            });
+            };
             Console.WriteLine("Saving data to database...");
             using (var conn = new SQLiteConnection(connectionString))
             {
@@ -82,7 +83,6 @@ namespace GetStockInfoFast
                 //var cmdFast = new SQLiteCommand($"PRAGMA synchronous = OFF;", conn);
                 //cmdFast.ExecuteNonQuery();
 
-                var pos = 1;
                 foreach(var data in rowDatas)
                 {
                     //Console.WriteLine($"{pos++}/{rowDatas.Count}");

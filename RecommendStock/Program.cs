@@ -120,7 +120,10 @@ namespace RecommendStock
                         {
                             // 满足条件
                             var level = hLevel + tLevel;
-                            lstRecommandStock.Add(new RecommendStock { Code = code, Exchange = exchange, Name = name, Level = level.ToString(), Price = price.ToString() });
+                            if (level > 2)
+                            {
+                                lstRecommandStock.Add(new RecommendStock { Code = code, Exchange = exchange, Name = name, Level = level.ToString(), Price = price.ToString() });
+                            }
                         }
                     }
                 }
