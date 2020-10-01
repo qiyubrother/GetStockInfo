@@ -27,8 +27,20 @@ namespace RecommendStock
             connectionString = connectionString.Replace("<path>", dbPath);
             var dt = new DataTable();
             var sw = new StreamWriter(Path.Combine(fi.Directory.FullName, $"RecommandStock.csv"), false, Encoding.UTF8);
+            var swReport = new StreamWriter(Path.Combine(fi.Directory.FullName, $"RecommandStock.html"), false, Encoding.UTF8);
             var lstRecommandStock = new List<RecommendStock>();
-
+            swReport.WriteLine($"<!DOCTYPE html>");
+            swReport.WriteLine($"<html>");
+            swReport.WriteLine($"<head>");
+            swReport.WriteLine($"<meta charset=\"UTF-8\">");
+            swReport.WriteLine($"<title>Recommend Stock Report</title>");
+            swReport.WriteLine($"<style>");
+            swReport.WriteLine("table { border:2px solid gray; cellpadding:1; cellspacing:0}");
+            swReport.WriteLine("table td, th {border:1px solid gray; padding:2px;}");
+            swReport.WriteLine("table th {background-color:red; color:white}");
+            swReport.WriteLine($"</style>");
+            swReport.WriteLine($"</head>");
+            swReport.WriteLine($"<body>");
             using (var conn = new SQLiteConnection(connectionString))
             {
                 var ada = new SQLiteDataAdapter($"select * from StockStatus", conn);
@@ -113,15 +125,24 @@ namespace RecommendStock
                     }
                 }
                 sw.WriteLine($"代码,名称,当前价,推荐等级");
+                swReport.WriteLine($"<table>");
+                swReport.WriteLine($"<tr><th>代码</th><th>名称</th><th>当前价</th><th>推荐等级</th></tr>");
                 lstRecommandStock.Sort(new CompareStock<RecommendStock>());
                 foreach (var item in lstRecommandStock)
                 {
                     sw.WriteLine($"{item.Exchange}{item.Code},{item.Name},{item.Price},{item.Level}");
+                    swReport.WriteLine($"<tr><td>{item.Exchange}{item.Code}</td><td><a target='_blank' href='http://quote.eastmoney.com/{item.Code}.html'>{item.Name}</a></td><td>{item.Price}</td><td>{item.Level}</td></tr>");
                 }
                 sw.Close();
+                swReport.WriteLine($"</table>");
+                swReport.WriteLine($"</body>");
+                swReport.WriteLine($"<html>");
+                swReport.Close();
                 //Console.WriteLine(Path.Combine(fi.Directory.FullName, $"RecommandStock.csv"));
                 //Console.WriteLine(Path.Combine(hisPath, $"RecommandStock-{DateTime.Now.Year}{DateTime.Now.Month.ToString().PadLeft(2, '0')}{DateTime.Now.Day.ToString().PadLeft(2, '0')}-{DateTime.Now.Hour.ToString().PadLeft(2, '0')}{DateTime.Now.Minute.ToString().PadLeft(2, '0')}.csv"));
                 File.Copy(Path.Combine(fi.Directory.FullName, $"RecommandStock.csv"), Path.Combine(hisPath, $"RecommandStock-{DateTime.Now.Year}{DateTime.Now.Month.ToString().PadLeft(2, '0')}{DateTime.Now.Day.ToString().PadLeft(2, '0')}-{DateTime.Now.Hour.ToString().PadLeft(2, '0')}{DateTime.Now.Minute.ToString().PadLeft(2, '0')}.csv"), true);
+                File.Copy(Path.Combine(fi.Directory.FullName, $"RecommandStock.html"), Path.Combine(hisPath, $"RecommandStock-{DateTime.Now.Year}{DateTime.Now.Month.ToString().PadLeft(2, '0')}{DateTime.Now.Day.ToString().PadLeft(2, '0')}-{DateTime.Now.Hour.ToString().PadLeft(2, '0')}{DateTime.Now.Minute.ToString().PadLeft(2, '0')}.html"), true);
+
             }
             Console.WriteLine($"OK!");
         }
