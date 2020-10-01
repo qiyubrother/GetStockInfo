@@ -8,7 +8,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Data;
 using System.Data.SQLite;
-using GetStockInfo;
 using System.Diagnostics;
 using System.Collections;
 
@@ -19,7 +18,6 @@ namespace RecommendStock
         static void Main(string[] args)
         {
             string connectionString = string.Empty;
-            var si = new StockInfo();
             var fi = new FileInfo(Process.GetCurrentProcess().MainModule.FileName);
             var s = File.ReadAllText(System.IO.Path.Combine(fi.Directory.FullName, "config.json"));
             var dbPath = Path.Combine(fi.Directory.Parent.Parent.FullName, "db");
