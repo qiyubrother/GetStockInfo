@@ -10,6 +10,7 @@ using System.Data;
 using System.Data.SQLite;
 using GetStockInfo;
 using System.Diagnostics;
+using System.Collections;
 
 namespace RecommendStock
 {
@@ -21,14 +22,15 @@ namespace RecommendStock
             var si = new StockInfo();
             var fi = new FileInfo(Process.GetCurrentProcess().MainModule.FileName);
             var s = File.ReadAllText(System.IO.Path.Combine(fi.Directory.FullName, "config.json"));
-            var dbPath = System.IO.Path.Combine(fi.Directory.Parent.Parent.FullName, "db");
+            var dbPath = Path.Combine(fi.Directory.Parent.Parent.FullName, "db");
+            var hisPath = Path.Combine(fi.Directory.Parent.Parent.FullName, "history");
             JObject jo = (JObject)JsonConvert.DeserializeObject(s);
             connectionString = jo["ConnectionString"].ToString();
             connectionString = connectionString.Replace("<path>", dbPath);
             var dt = new DataTable();
-            var sw = new StreamWriter(System.IO.Path.Combine(fi.Directory.FullName, $"RecommandStock.csv"), false, Encoding.UTF8);
+            var sw = new StreamWriter(Path.Combine(fi.Directory.FullName, $"RecommandStock.csv"), false, Encoding.UTF8);
             var lstRecommandStock = new List<RecommendStock>();
-            Console.WriteLine(connectionString);
+
             using (var conn = new SQLiteConnection(connectionString))
             {
                 var ada = new SQLiteDataAdapter($"select * from StockStatus", conn);
@@ -36,48 +38,21 @@ namespace RecommendStock
                 ada.Fill(dt);
                 foreach (DataRow dr in dt.Rows)
                 {
-                    //si.Code = new StockCode { Code = dr["Code"].ToString(), Exchange = dr["Exchange"].ToString().ToLower() == "sh" ? Exchange.SH : Exchange.SZ };
-                    //si.Name = dr["Name"].ToString(); // 名称
-                    //si.Price = dr["Price"].ToString(); // 价格
-                    //si.ZhangFuDianShu = dr["ZhangFuDianShu"].ToString(); // 涨幅
-                    //si.ZhangFuBiLv = dr["ZhangFuBiLv"].ToString(); // 涨幅比率
-                    //si.ZuoShou = dr["ZuoShou"].ToString(); // 昨收
-                    //si.JinKai = dr["JinKai"].ToString(); // 今开
-                    //si.ZuiGao = dr["ZuiGao"].ToString(); // 最高
-                    //si.ZuiDi = dr["ZuiDi"].ToString(); // 最低
-                    //si.ChengJiaoLiang = dr["ChengJiaoLiang"].ToString(); // 成交量
-                    //si.ChengJiaoE = dr["ChengJiaoE"].ToString(); // 成交额
-                    //si.ZongShiZhi = dr["ZongShiZhi"].ToString(); // 总市值
-                    //si.LiuTongShiZhi = dr["LiuTongShiZhi"].ToString(); // 流通市值
-                    //si.HuanShouLv = dr["HuanShouLv"].ToString(); // 换手率
-                    //si.ShiJingLv = dr["ShiJingLv"].ToString(); // 市净率
-                    //si.ZhenFu = dr["ZhenFu"].ToString(); // 振幅
-                    //si.ShiYingLv = dr["ShiYingLv"].ToString(); // 市盈率
-
                     var code = dr["Code"].ToString();
                     var exchange = dr["Exchange"].ToString().ToLower();
                     var name = dr["Name"].ToString(); // 名称
                     decimal.TryParse(dr["Price"].ToString(), out decimal price); // 价格
-                    //decimal.TryParse(dr["ZhangFuDianShu"].ToString(), out decimal zhangFuDianShu); // 涨幅
-                    //decimal.TryParse(dr["ZhangFuBiLv"].ToString(), out decimal zhangFuBiLv); // 涨幅比率
                     decimal.TryParse(dr["ZuoShou"].ToString(), out decimal zuoShou); // 昨收
                     decimal.TryParse(dr["JinKai"].ToString(), out decimal jinKai); // 今开
                     decimal.TryParse(dr["ZuiGao"].ToString(), out decimal zuiGao) ; // 最高
                     decimal.TryParse(dr["ZuiDi"].ToString(), out decimal zuiDi); // 最低
-                    //decimal.TryParse(dr["ChengJiaoLiang"].ToString(), out decimal chengJiaoLiang); // 成交量
-                    //decimal.TryParse(dr["ChengJiaoE"].ToString(), out decimal chengJiaoE); // 成交额
-                    //decimal.TryParse(dr["ZongShiZhi"].ToString(), out decimal zongShiZhi); // 总市值
-                    //decimal.TryParse(dr["LiuTongShiZhi"].ToString(), out decimal liuTongShiZhi); // 流通市值
-                    //decimal.TryParse(dr["HuanShouLv"].ToString(), out decimal huanShouLv); // 换手率
-                    //decimal.TryParse(dr["ShiJingLv"].ToString(), out decimal shiJingLv); // 市净率
-                    //decimal.TryParse(dr["ZhenFu"].ToString(), out decimal zhenFu); // 振幅
-                    //decimal.TryParse(dr["ShiYingLv"].ToString(), out decimal shiYingLv); // 市盈率
 
                     var zhangFuDianShu = price - jinKai;
 
                     if (name.StartsWith("ST") ||
                         name.StartsWith("*ST") ||
                         name.StartsWith("N") ||
+                        name.EndsWith("退") ||
                         price == 0 ||
                         zhangFuDianShu == 0
                         )
@@ -140,11 +115,39 @@ namespace RecommendStock
                     }
                 }
                 sw.WriteLine($"代码,名称,当前价,推荐等级");
+                lstRecommandStock.Sort(new CompareStock<RecommendStock>());
                 foreach (var item in lstRecommandStock)
                 {
                     sw.WriteLine($"{item.Exchange}{item.Code},{item.Name},{item.Price},{item.Level}");
                 }
                 sw.Close();
+                //Console.WriteLine(Path.Combine(fi.Directory.FullName, $"RecommandStock.csv"));
+                //Console.WriteLine(Path.Combine(hisPath, $"RecommandStock-{DateTime.Now.Year}{DateTime.Now.Month.ToString().PadLeft(2, '0')}{DateTime.Now.Day.ToString().PadLeft(2, '0')}-{DateTime.Now.Hour.ToString().PadLeft(2, '0')}{DateTime.Now.Minute.ToString().PadLeft(2, '0')}.csv"));
+                File.Copy(Path.Combine(fi.Directory.FullName, $"RecommandStock.csv"), Path.Combine(hisPath, $"RecommandStock-{DateTime.Now.Year}{DateTime.Now.Month.ToString().PadLeft(2, '0')}{DateTime.Now.Day.ToString().PadLeft(2, '0')}-{DateTime.Now.Hour.ToString().PadLeft(2, '0')}{DateTime.Now.Minute.ToString().PadLeft(2, '0')}.csv"), true);
+            }
+            Console.WriteLine($"OK!");
+        }
+    }
+
+    public class CompareStock<T> : IComparer<T>
+    {
+        public int Compare(T x, T y)
+        {
+            var a = x as RecommendStock;
+            var b = y as RecommendStock;
+            var ia = Convert.ToInt32(a.Level);
+            var ib = Convert.ToInt32(b.Level);
+            if (ia > ib)
+            {
+                return -1;
+            }
+            else if (ia == ib)
+            {
+                return 0;
+            }
+            else
+            {
+                return 1;
             }
         }
     }
