@@ -29,16 +29,15 @@ namespace RecommendStock
             var sw = new StreamWriter(Path.Combine(fi.Directory.FullName, $"RecommandStock.csv"), false, Encoding.UTF8);
             var swReport = new StreamWriter(Path.Combine(fi.Directory.FullName, $"RecommandStock.html"), false, Encoding.UTF8);
             var lstRecommandStock = new List<RecommendStock>();
+            var reportDateTime = $"{DateTime.Now.Year}{DateTime.Now.Month.ToString().PadLeft(2, '0')}{DateTime.Now.Day.ToString().PadLeft(2, '0')}-{DateTime.Now.Hour.ToString().PadLeft(2, '0')}{DateTime.Now.Minute.ToString().PadLeft(2, '0')}";
             swReport.WriteLine($"<!DOCTYPE html>");
             swReport.WriteLine($"<html>");
             swReport.WriteLine($"<head>");
             swReport.WriteLine($"<meta charset=\"UTF-8\">");
+            swReport.WriteLine($"<link rel='stylesheet' href='https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css'>  ");
+            swReport.WriteLine($"<script src='https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js'></script>");
+            swReport.WriteLine($"<script src='https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js'></script>");
             swReport.WriteLine($"<title>Recommend Stock Report</title>");
-            swReport.WriteLine($"<style>");
-            swReport.WriteLine("table { border:2px solid gray; cellpadding:1; cellspacing:0}");
-            swReport.WriteLine("table td, th {border:1px solid gray; padding:2px;}");
-            swReport.WriteLine("table th {background-color:red; color:white}");
-            swReport.WriteLine($"</style>");
             swReport.WriteLine($"</head>");
             swReport.WriteLine($"<body>");
             using (var conn = new SQLiteConnection(connectionString))
@@ -139,23 +138,26 @@ namespace RecommendStock
                     }
                 }
                 sw.WriteLine($"代码,名称,当前价,推荐等级");
-                swReport.WriteLine($"<table>");
-                swReport.WriteLine($"<tr><th>代码</th><th>名称</th><th>当前价</th><th>推荐等级</th></tr>");
+                swReport.WriteLine($"<table class='table table-striped table-bordered table-hover'>");
+                swReport.WriteLine($"<tr><th>序号</th><th>代码</th><th>名称</th><th>当前价</th><th>推荐等级</th></tr>");
                 lstRecommandStock.Sort(new CompareStock<RecommendStock>());
+                int pos = 0;
                 foreach (var item in lstRecommandStock)
                 {
                     sw.WriteLine($"{item.Exchange}{item.Code},{item.Name},{item.Price},{item.Level}");
-                    swReport.WriteLine($"<tr><td>{item.Exchange}{item.Code}</td><td><a target='_blank' href='http://quote.eastmoney.com/{item.Code}.html'>{item.Name}</a></td><td>{item.Price}</td><td>{item.Level}</td></tr>");
+                    swReport.WriteLine($"<tr><td>{++pos}</td><td>{item.Exchange}{item.Code}</td><td><a target='_blank' href='http://quote.eastmoney.com/{item.Code}.html'>{item.Name}</a></td><td>{item.Price}</td><td>{item.Level}</td></tr>");
                 }
                 sw.Close();
                 swReport.WriteLine($"</table>");
+                swReport.WriteLine($"<div style='margin:0;padding:0;text-align:center'>");
+                swReport.WriteLine($"<h5>生成时间：{reportDateTime}</h5>");
+                swReport.WriteLine($"<h5>软件版本：{1.1}</h5>");
+                swReport.WriteLine($"</div>");
                 swReport.WriteLine($"</body>");
                 swReport.WriteLine($"<html>");
                 swReport.Close();
-                //Console.WriteLine(Path.Combine(fi.Directory.FullName, $"RecommandStock.csv"));
-                //Console.WriteLine(Path.Combine(hisPath, $"RecommandStock-{DateTime.Now.Year}{DateTime.Now.Month.ToString().PadLeft(2, '0')}{DateTime.Now.Day.ToString().PadLeft(2, '0')}-{DateTime.Now.Hour.ToString().PadLeft(2, '0')}{DateTime.Now.Minute.ToString().PadLeft(2, '0')}.csv"));
-                File.Copy(Path.Combine(fi.Directory.FullName, $"RecommandStock.csv"), Path.Combine(hisPath, $"RecommandStock-{DateTime.Now.Year}{DateTime.Now.Month.ToString().PadLeft(2, '0')}{DateTime.Now.Day.ToString().PadLeft(2, '0')}-{DateTime.Now.Hour.ToString().PadLeft(2, '0')}{DateTime.Now.Minute.ToString().PadLeft(2, '0')}.csv"), true);
-                File.Copy(Path.Combine(fi.Directory.FullName, $"RecommandStock.html"), Path.Combine(hisPath, $"RecommandStock-{DateTime.Now.Year}{DateTime.Now.Month.ToString().PadLeft(2, '0')}{DateTime.Now.Day.ToString().PadLeft(2, '0')}-{DateTime.Now.Hour.ToString().PadLeft(2, '0')}{DateTime.Now.Minute.ToString().PadLeft(2, '0')}.html"), true);
+                File.Copy(Path.Combine(fi.Directory.FullName, $"RecommandStock.csv"), Path.Combine(hisPath, $"RecommandStock-{reportDateTime}.csv"), true);
+                File.Copy(Path.Combine(fi.Directory.FullName, $"RecommandStock.html"), Path.Combine(hisPath, $"RecommandStock-{reportDateTime}.html"), true);
 
             }
             Console.WriteLine($"OK!");
