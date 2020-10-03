@@ -25,8 +25,10 @@ namespace RecommendStock
             JObject jo = (JObject)JsonConvert.DeserializeObject(s);
             connectionString = jo["ConnectionString"].ToString();
             connectionString = connectionString.Replace("<path>", dbPath);
+            var paramXiaYingXianChangDu = Convert.ToInt32(jo["XiaYingXianChangDu"].ToString()); // 下影线长度
+            var paramJinRiZuiDiDieFu = Convert.ToSingle(jo["JinRiZuiDiDieFu"].ToString()); // 今日最低跌幅
             var dt = new DataTable();
-            var sw = new StreamWriter(Path.Combine(fi.Directory.FullName, $"RecommandStock.csv"), false, Encoding.UTF8);
+            //var sw = new StreamWriter(Path.Combine(fi.Directory.FullName, $"RecommandStock.csv"), false, Encoding.UTF8);
             var swReport = new StreamWriter(Path.Combine(fi.Directory.FullName, $"RecommandStock.html"), false, Encoding.UTF8);
             var lstRecommandStock = new List<RecommendStock>();
             var reportDateTime = $"{DateTime.Now.Year}{DateTime.Now.Month.ToString().PadLeft(2, '0')}{DateTime.Now.Day.ToString().PadLeft(2, '0')}-{DateTime.Now.Hour.ToString().PadLeft(2, '0')}{DateTime.Now.Minute.ToString().PadLeft(2, '0')}";
@@ -63,12 +65,14 @@ namespace RecommendStock
                         name.StartsWith("N") ||
                         name.EndsWith("退") ||
                         price == 0 ||
-                        zhangFuDianShu == 0
+                        zhangFuDianShu == 0 ||
+                        jinKai == 0
                         )
                     {
                         continue;
                     }
-
+                    var _jinRiZuiDiDieFu = Math.Round(Convert.ToSingle((jinKai - zuiDi) / jinKai * 100), 2);
+                    int xiaYingXianChangDu = 0;
                     if (jinKai >= zuoShou && zuiDi > 0 && jinKai < price) // 高开
                     {
                         var hLevel = 0;
@@ -82,18 +86,18 @@ namespace RecommendStock
                         }
                         else
                         {
-                            var f = (int)(Math.Round(Convert.ToSingle(b / zhangFuDianShu), 3) * 100);
-                            if (f < 10) // 可以参数化
+                            xiaYingXianChangDu = (int)(Math.Round(Convert.ToSingle(b / zhangFuDianShu), 3) * 100);
+                            if (xiaYingXianChangDu < 10) // 可以参数化
                             {
-                                if (Convert.ToSingle((jinKai - zuiDi) / jinKai * 100) < 2.01) // 低于2%
+                                if (_jinRiZuiDiDieFu < paramJinRiZuiDiDieFu) // recomment: 2, 2.5, 3
                                 {
                                     // 超短腿阳柱
                                     hLevel = 2;
                                 }
                             }
-                            if (f <= 20) // 可以参数化
+                            if (xiaYingXianChangDu <= paramXiaYingXianChangDu /* recomment: 20, 21, 22, 23, 24, 25 */) // 可以参数化
                             {
-                                if (Convert.ToSingle((jinKai - zuiDi) / jinKai * 100) < 2.01) // 低于2%
+                                if (_jinRiZuiDiDieFu < paramJinRiZuiDiDieFu) // recomment: 2, 2.5, 3
                                 {
                                     // 短腿阳柱
                                     hLevel = 1;
@@ -132,31 +136,31 @@ namespace RecommendStock
                             var level = hLevel + tLevel;
                             if (level > 3)
                             {
-                                lstRecommandStock.Add(new RecommendStock { Code = code, Exchange = exchange, Name = name, Level = level.ToString(), Price = price.ToString() });
+                                lstRecommandStock.Add(new RecommendStock { Code = code, Exchange = exchange, Name = name, Level = level.ToString(), Price = price.ToString(), JinRiZuiDiDieFu = _jinRiZuiDiDieFu.ToString(), XiaYingXianChangDu = xiaYingXianChangDu.ToString() }); ;
                             }
                         }
                     }
                 }
-                sw.WriteLine($"代码,名称,当前价,推荐等级");
+                //sw.WriteLine($"代码,名称,当前价,推荐等级");
                 swReport.WriteLine($"<table class='table table-striped table-bordered table-hover'>");
-                swReport.WriteLine($"<tr><th>序号</th><th>代码</th><th>名称</th><th>当前价</th><th>推荐等级</th></tr>");
+                swReport.WriteLine($"<tr><th>序号</th><th>代码</th><th>名称</th><th>当前价</th><th>推荐等级</th><th>下影线长度(%)</th><th>今日最低跌幅(%)</th></tr>");
                 lstRecommandStock.Sort(new CompareStock<RecommendStock>());
                 int pos = 0;
                 foreach (var item in lstRecommandStock)
                 {
-                    sw.WriteLine($"{item.Exchange}{item.Code},{item.Name},{item.Price},{item.Level}");
-                    swReport.WriteLine($"<tr><td>{++pos}</td><td>{item.Exchange}{item.Code}</td><td><a target='_blank' href='http://quote.eastmoney.com/{item.Code}.html'>{item.Name}</a></td><td>{item.Price}</td><td>{item.Level}</td></tr>");
+                    //sw.WriteLine($"{item.Exchange}{item.Code},{item.Name},{item.Price},{item.Level}");
+                    swReport.WriteLine($"<tr><td>{++pos}</td><td>{item.Exchange}{item.Code}</td><td><a target='_blank' href='http://quote.eastmoney.com/{item.Code}.html'>{item.Name}</a></td><td>{item.Price}</td><td>{item.Level}</td><td>{item.XiaYingXianChangDu}</td><td>{item.JinRiZuiDiDieFu}</td></tr>");
                 }
-                sw.Close();
+                //sw.Close();
                 swReport.WriteLine($"</table>");
                 swReport.WriteLine($"<div style='margin:0;padding:0;text-align:center'>");
                 swReport.WriteLine($"<h5>生成时间：{reportDateTime}</h5>");
-                swReport.WriteLine($"<h5>软件版本：{1.1}</h5>");
+                swReport.WriteLine($"<h5>软件版本：{1.2}</h5>");
                 swReport.WriteLine($"</div>");
                 swReport.WriteLine($"</body>");
                 swReport.WriteLine($"<html>");
                 swReport.Close();
-                File.Copy(Path.Combine(fi.Directory.FullName, $"RecommandStock.csv"), Path.Combine(hisPath, $"RecommandStock-{reportDateTime}.csv"), true);
+                //File.Copy(Path.Combine(fi.Directory.FullName, $"RecommandStock.csv"), Path.Combine(hisPath, $"RecommandStock-{reportDateTime}.csv"), true);
                 File.Copy(Path.Combine(fi.Directory.FullName, $"RecommandStock.html"), Path.Combine(hisPath, $"RecommandStock-{reportDateTime}.html"), true);
 
             }
@@ -194,5 +198,7 @@ namespace RecommendStock
         public string Name { get; set; }
         public string Level { get; set; }
         public string Price { get; set; }
+        public string JinRiZuiDiDieFu { get; set; }
+        public string XiaYingXianChangDu { get; set; }
     }
 }
