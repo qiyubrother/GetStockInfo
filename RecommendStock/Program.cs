@@ -79,15 +79,26 @@ namespace RecommendStock
                         if (b == 0)
                         {
                             // 无腿阳柱
-                            hLevel = 2;
+                            hLevel = 3;
                         }
                         else
                         {
                             var f = (int)(Math.Round(Convert.ToSingle(b / zhangFuDianShu), 3) * 100);
-                            if (f < 10) // 可以参数化（10）
+                            if (f < 10) // 可以参数化
                             {
-                                // 超短腿阳柱
-                                hLevel = 1;
+                                if (Convert.ToSingle((jinKai - zuiDi) / jinKai * 100) < 2.01) // 低于2%
+                                {
+                                    // 超短腿阳柱
+                                    hLevel = 2;
+                                }
+                            }
+                            if (f <= 20) // 可以参数化
+                            {
+                                if (Convert.ToSingle((jinKai - zuiDi) / jinKai * 100) < 2.01) // 低于2%
+                                {
+                                    // 短腿阳柱
+                                    hLevel = 1;
+                                }
                             }
                             else
                             {
@@ -100,27 +111,27 @@ namespace RecommendStock
                         if (a == 0)
                         {
                             // 秃头阳柱
-                            tLevel = 2;
+                            tLevel = 3;
                         }
-                        else
-                        {
-                            var f = (int)(Math.Round(Convert.ToSingle(a / zhangFuDianShu), 3) * 100);
-                            if (f < 20) // 可以参数化（20）
-                            {
-                                // 超短头发阳柱
-                                tLevel = 1;
-                            }
-                            else
-                            {
-                                // 忽略，不符合条件
-                            }
-                        }
+                        //else
+                        //{
+                        //    var f = (int)(Math.Round(Convert.ToSingle(a / zhangFuDianShu), 3) * 100);
+                        //    if (f < 20) // 可以参数化（20）
+                        //    {
+                        //        // 超短头发阳柱
+                        //        tLevel = 1;
+                        //    }
+                        //    else
+                        //    {
+                        //        // 忽略，不符合条件
+                        //    }
+                        //}
                         #endregion
                         if (hLevel > 0 && tLevel > 0)
                         {
                             // 满足条件
                             var level = hLevel + tLevel;
-                            if (level > 2)
+                            if (level > 3)
                             {
                                 lstRecommandStock.Add(new RecommendStock { Code = code, Exchange = exchange, Name = name, Level = level.ToString(), Price = price.ToString() });
                             }
