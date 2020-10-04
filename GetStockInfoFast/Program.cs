@@ -40,7 +40,7 @@ namespace GetStockInfoFast
                     codeList.Add($"{dr["Exchange"].ToString()}{dr["Code"].ToString()}");
                 }
             }
-            Console.WriteLine("Collecting data...");
+            //Console.WriteLine("Collecting data...");
             //codeList.AsParallel().ForAll((code) =>
             foreach(var code in codeList)
             {
@@ -75,7 +75,7 @@ namespace GetStockInfoFast
                     rowDatas.Add(rowData);
                 }
             };
-            Console.WriteLine("Saving data to database...");
+            //Console.WriteLine("Saving data to database...");
             using (var conn = new SQLiteConnection(connectionString))
             {
                 conn.Open();

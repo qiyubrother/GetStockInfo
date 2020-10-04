@@ -68,6 +68,8 @@
     <None Include="RecommendStockApp\RecommendStockApp[20201003].zip" />
     <None Include="RecommendStockApp\RecommendStockApp[20201003][1.1].zip" />
     <None Include="RecommendStockApp\RecommendStockApp[20201003][1.2].zip" />
+    <None Include="RecommendStockApp\RecommendStockApp[20201004][1.4].zip" />
+    <None Include="RecommendStockApp\RecommendStockApp[20201004][1.5].7z" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="RecommendStock.ico" />

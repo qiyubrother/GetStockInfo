@@ -143,8 +143,19 @@ namespace RecommendStock
                         }
                     }
                 }
+                var sz = "sh000001"; // 上证指数
+                var sc = "sz399001"; // 深证成指
+                var cy = "sz399006"; // 创业板指
+                var zx = "sz399005"; // 中小板指
+                var kc50 = "sh000688"; // 科创50指数
                 var detailBuilder = new StringBuilder();
                 detailBuilder.Append($"<table class='table table-striped table-bordered table-hover'>");
+                detailBuilder.Append($"<tr><td>&nbsp;</td><td><a target='_blank' href='http://quote.eastmoney.com/{sz}.html'>上证指数</a><br>{sz}</td><td><image src='data:image/png;base64,{GetFenShiImageBase64(sz)}' /></td><td><image src='data:image/png;base64,{GetRiKXianImageBase64(sz)}' /></td><td><image src='data:image/png;base64,{GetZhouKXianImageBase64(sz)}' /></td></tr>");
+                detailBuilder.Append($"<tr><td>&nbsp;</td><td><a target='_blank' href='http://quote.eastmoney.com/{sc}.html'>深证成指</a><br>{sc}</td><td><image src='data:image/png;base64,{GetFenShiImageBase64(sc)}' /></td><td><image src='data:image/png;base64,{GetRiKXianImageBase64(sc)}' /></td><td><image src='data:image/png;base64,{GetZhouKXianImageBase64(sc)}' /></td></tr>");
+                detailBuilder.Append($"<tr><td>&nbsp;</td><td><a target='_blank' href='http://quote.eastmoney.com/{cy}.html'>创业板指</a><br>{cy}</td><td><image src='data:image/png;base64,{GetFenShiImageBase64(cy)}' /></td><td><image src='data:image/png;base64,{GetRiKXianImageBase64(cy)}' /></td><td><image src='data:image/png;base64,{GetZhouKXianImageBase64(cy)}' /></td></tr>");
+                detailBuilder.Append($"<tr><td>&nbsp;</td><td><a target='_blank' href='http://quote.eastmoney.com/{zx}.html'>中小板指</a><br>{zx}</td><td><image src='data:image/png;base64,{GetFenShiImageBase64(zx)}' /></td><td><image src='data:image/png;base64,{GetRiKXianImageBase64(zx)}' /></td><td><image src='data:image/png;base64,{GetZhouKXianImageBase64(zx)}' /></td></tr>");
+                detailBuilder.Append($"<tr><td>&nbsp;</td><td><a target='_blank' href='http://quote.eastmoney.com/{kc50}.html'>科创50指数</a><br>{kc50}</td><td><image src='data:image/png;base64,{GetFenShiImageBase64(kc50)}' /></td><td><image src='data:image/png;base64,{GetRiKXianImageBase64(kc50)}' /></td><td><image src='data:image/png;base64,{GetZhouKXianImageBase64(kc50)}' /></td></tr>");
+
                 swReport.WriteLine($"<table class='table table-striped table-bordered table-hover'>");
                 swReport.WriteLine($"<tr><th>序号</th><th>代码</th><th>名称</th><th>当前价</th><th>推荐等级</th><th>下影线长度(%)</th><th>今日最低跌幅(%)</th></tr>");
                 lstRecommandStock.Sort(new CompareStock<RecommendStock>());
@@ -160,7 +171,7 @@ namespace RecommendStock
                 swReport.WriteLine(detailBuilder);
                 swReport.WriteLine($"<div style='margin:0;padding:0;text-align:center'>");
                 swReport.WriteLine($"<h5>生成时间：{reportDateTime}</h5>");
-                swReport.WriteLine($"<h5>软件版本：{1.3}</h5>");
+                swReport.WriteLine($"<h5>软件版本：{1.5}</h5>");
                 swReport.WriteLine($"</div>");
                 swReport.WriteLine($"</body>");
                 swReport.WriteLine($"<html>");
@@ -177,6 +188,7 @@ namespace RecommendStock
         /// <returns></returns>
         public static string GetFenShiImageBase64(string stockCode)
         {
+            // Console.WriteLine($"http://image.sinajs.cn/newchart/min/n/{stockCode}.gif?_=" + DateTime.Now.Ticks);
             var webreq = System.Net.WebRequest.Create($"http://image.sinajs.cn/newchart/min/n/{stockCode}.gif?_=" + DateTime.Now.Ticks);
             using (var webres = webreq.GetResponse())
             {
