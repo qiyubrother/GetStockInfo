@@ -41,7 +41,6 @@ namespace GetStockInfoFast
                 }
             }
             //Console.WriteLine("Collecting data...");
-            //codeList.AsParallel().ForAll((code) =>
             foreach(var code in codeList)
             {
                 var s = GetHtmltxt($"http://hq.sinajs.cn/list={code}");
@@ -80,12 +79,9 @@ namespace GetStockInfoFast
             {
                 conn.Open();
                 var trans = conn.BeginTransaction();
-                //var cmdFast = new SQLiteCommand($"PRAGMA synchronous = OFF;", conn);
-                //cmdFast.ExecuteNonQuery();
 
                 foreach(var data in rowDatas)
                 {
-                    //Console.WriteLine($"{pos++}/{rowDatas.Count}");
                     var ada = new SQLiteDataAdapter($"select count(*) from StockStatus where Code = '{data.Code}'", conn);
                     var dt = new DataTable();
                     ada.Fill(dt);
