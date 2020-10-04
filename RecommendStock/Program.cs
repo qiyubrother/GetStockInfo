@@ -10,6 +10,8 @@ using System.Data;
 using System.Data.SQLite;
 using System.Diagnostics;
 using System.Collections;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace RecommendStock
 {
@@ -141,18 +143,21 @@ namespace RecommendStock
                         }
                     }
                 }
-                //sw.WriteLine($"代码,名称,当前价,推荐等级");
+                var detailBuilder = new StringBuilder();
+                detailBuilder.Append($"<table class='table table-striped table-bordered table-hover'>");
                 swReport.WriteLine($"<table class='table table-striped table-bordered table-hover'>");
                 swReport.WriteLine($"<tr><th>序号</th><th>代码</th><th>名称</th><th>当前价</th><th>推荐等级</th><th>下影线长度(%)</th><th>今日最低跌幅(%)</th></tr>");
                 lstRecommandStock.Sort(new CompareStock<RecommendStock>());
                 int pos = 0;
                 foreach (var item in lstRecommandStock)
                 {
-                    //sw.WriteLine($"{item.Exchange}{item.Code},{item.Name},{item.Price},{item.Level}");
-                    swReport.WriteLine($"<tr><td>{++pos}</td><td>{item.Exchange}{item.Code}</td><td><a target='_blank' href='http://quote.eastmoney.com/{item.Code}.html'>{item.Name}</a></td><td>{item.Price}</td><td>{item.Level}</td><td>{item.XiaYingXianChangDu}</td><td>{item.JinRiZuiDiDieFu}</td></tr>");
+                    ++pos;
+                    swReport.WriteLine($"<tr><td>{pos}</td><td>{item.Exchange}{item.Code}</td><td><a target='_blank' href='http://quote.eastmoney.com/{item.Code}.html'>{item.Name}</a></td><td>{item.Price}</td><td>{item.Level}</td><td>{item.XiaYingXianChangDu}</td><td>{item.JinRiZuiDiDieFu}</td></tr>");
+                    detailBuilder.Append($"<tr><td>{pos}</td><td><a target='_blank' href='http://quote.eastmoney.com/{item.Code}.html'>{item.Name}</a><br>{item.Exchange}{item.Code}</td><td><image src='data:image/png;base64,{GetFenShiImageBase64(item.Exchange+item.Code)}' /></td><td><image src='data:image/png;base64,{GetRiKXianImageBase64(item.Exchange + item.Code)}' /></td><td><image src='data:image/png;base64,{GetZhouKXianImageBase64(item.Exchange + item.Code)}' /></td></tr>");
                 }
-                //sw.Close();
                 swReport.WriteLine($"</table>");
+                detailBuilder.Append($"</table>");
+                swReport.WriteLine(detailBuilder);
                 swReport.WriteLine($"<div style='margin:0;padding:0;text-align:center'>");
                 swReport.WriteLine($"<h5>生成时间：{reportDateTime}</h5>");
                 swReport.WriteLine($"<h5>软件版本：{1.2}</h5>");
@@ -160,11 +165,83 @@ namespace RecommendStock
                 swReport.WriteLine($"</body>");
                 swReport.WriteLine($"<html>");
                 swReport.Close();
-                //File.Copy(Path.Combine(fi.Directory.FullName, $"RecommandStock.csv"), Path.Combine(hisPath, $"RecommandStock-{reportDateTime}.csv"), true);
                 File.Copy(Path.Combine(fi.Directory.FullName, $"RecommandStock.html"), Path.Combine(hisPath, $"RecommandStock-{reportDateTime}.html"), true);
 
             }
             Console.WriteLine($"OK!");
+        }
+        /// <summary>
+        /// 分时图的Base64
+        /// </summary>
+        /// <param name="stockCode"></param>
+        /// <returns></returns>
+        public static string GetFenShiImageBase64(string stockCode)
+        {
+            var webreq = System.Net.WebRequest.Create($"http://image.sinajs.cn/newchart/min/n/{stockCode}.gif?_=" + DateTime.Now.Ticks);
+            using (var webres = webreq.GetResponse())
+            {
+                using (var stream = webres.GetResponseStream())
+                {
+                    using (var image = Image.FromStream(stream))
+                    {
+                        using (var ms = new MemoryStream())
+                        {
+                            image.Save(ms, ImageFormat.Gif);
+                            byte[] arr = new byte[ms.Length];
+                            ms.Position = 0;
+                            ms.Read(arr, 0, (int)ms.Length);
+                            return Convert.ToBase64String(arr);
+                        }
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="stockCode"></param>
+        /// <returns></returns>
+        public static string GetRiKXianImageBase64(string stockCode)
+        {
+            var webreq = System.Net.WebRequest.Create($"http://image.sinajs.cn/newchart/daily/n/{stockCode}.gif?_=" + DateTime.Now.Ticks);
+            using (var webres = webreq.GetResponse())
+            {
+                using (var stream = webres.GetResponseStream())
+                {
+                    using (var image = Image.FromStream(stream))
+                    {
+                        using (var ms = new MemoryStream())
+                        {
+                            image.Save(ms, ImageFormat.Gif);
+                            byte[] arr = new byte[ms.Length];
+                            ms.Position = 0;
+                            ms.Read(arr, 0, (int)ms.Length);
+                            return Convert.ToBase64String(arr);
+                        }
+                    }
+                }
+            }
+        }
+        public static string GetZhouKXianImageBase64(string stockCode)
+        {
+            var webreq = System.Net.WebRequest.Create($"http://image.sinajs.cn/newchart/weekly/n/{stockCode}.gif?_=" + DateTime.Now.Ticks);
+            using (var webres = webreq.GetResponse())
+            {
+                using (var stream = webres.GetResponseStream())
+                {
+                    using (var image = Image.FromStream(stream))
+                    {
+                        using (var ms = new MemoryStream())
+                        {
+                            image.Save(ms, ImageFormat.Gif);
+                            byte[] arr = new byte[ms.Length];
+                            ms.Position = 0;
+                            ms.Read(arr, 0, (int)ms.Length);
+                            return Convert.ToBase64String(arr);
+                        }
+                    }
+                }
+            }
         }
     }
 
