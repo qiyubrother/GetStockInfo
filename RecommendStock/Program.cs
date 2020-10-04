@@ -160,7 +160,7 @@ namespace RecommendStock
                 swReport.WriteLine(detailBuilder);
                 swReport.WriteLine($"<div style='margin:0;padding:0;text-align:center'>");
                 swReport.WriteLine($"<h5>生成时间：{reportDateTime}</h5>");
-                swReport.WriteLine($"<h5>软件版本：{1.2}</h5>");
+                swReport.WriteLine($"<h5>软件版本：{1.3}</h5>");
                 swReport.WriteLine($"</div>");
                 swReport.WriteLine($"</body>");
                 swReport.WriteLine($"<html>");
