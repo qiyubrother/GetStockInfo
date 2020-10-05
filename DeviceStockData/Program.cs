@@ -19,7 +19,6 @@ namespace DeviceStockData
         static List<string> codeList = new List<string>();
         static string connectionString = string.Empty;
         static string codesTableName = string.Empty;
-        static List<RowData> rowDatas = new List<RowData>();
         static void Main(string[] args)
         {
             var fi = new FileInfo(Process.GetCurrentProcess().MainModule.FileName);
@@ -60,7 +59,7 @@ namespace DeviceStockData
                     var q = $"https://q.stock.sohu.com/hisHq?code=cn_{stockCode}&start={startDate}&end={endDate}&stat=1&order=D&period=d&callback=historySearchHandler&rt=jsonp";
                     var ___s = GetHtmltxt(q);
                     var jsonData = ___s.Replace("historySearchHandler(", string.Empty).Replace("\n", string.Empty).TrimEnd(')');
-                    Console.WriteLine(stockCode);
+                    // Console.WriteLine(stockCode);
                     if (jsonData == "{}")
                     {
                         continue;
@@ -85,7 +84,7 @@ namespace DeviceStockData
                         decimal.TryParse(data[6].ToString(), out decimal shouPan); // 收盘
                         decimal.TryParse(data[7].ToString(), out decimal chengJiaoLiang); // 成交量
                         decimal.TryParse(data[8].ToString(), out decimal chengJiaoE); // 成交额
-                        decimal.TryParse(data[9].ToString(), out decimal huanShouLv); // 换手率
+                        decimal.TryParse(data[9].ToString().TrimEnd('%'), out decimal huanShouLv); // 换手率
                         row.JinKai = jinKai;
                         row.ZuiGao = zuiGao;
                         row.ShangZhangJinE = shangZhangJinE;

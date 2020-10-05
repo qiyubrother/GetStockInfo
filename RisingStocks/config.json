@@ -1,0 +1,6 @@
+{
+  "ConnectionString": "Data Source=.\\stock.db;Version=3;UseUTF16Encoding=True;",
+  "CodeSource": "select * from Codes_SH union select * from Codes_SZ union select * from Codes_SZ_CY union select * from Codes_SZ_ZX", /* Codes_SH, Codes_SZ, Codes_SZ_CY, Codes_SZ_ZX */
+  "StartDate": "20200901", /* 起始日期 */
+  "EndDate": "20200930" /* 终止日期 */
+}

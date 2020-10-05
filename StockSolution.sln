@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClearTable", "ClearTable\Cl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeviceStockData", "DeviceStockData\DeviceStockData.csproj", "{586BFDBF-B819-4FAC-A944-751AF1061C32}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RisingStocks", "RisingStocks\RisingStocks.csproj", "{08F270C8-30F4-4A1C-9432-C3346AAF2ECF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{586BFDBF-B819-4FAC-A944-751AF1061C32}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{586BFDBF-B819-4FAC-A944-751AF1061C32}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{586BFDBF-B819-4FAC-A944-751AF1061C32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08F270C8-30F4-4A1C-9432-C3346AAF2ECF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08F270C8-30F4-4A1C-9432-C3346AAF2ECF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08F270C8-30F4-4A1C-9432-C3346AAF2ECF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08F270C8-30F4-4A1C-9432-C3346AAF2ECF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
