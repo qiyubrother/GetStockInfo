@@ -1,0 +1,5 @@
+{
+  "ConnectionString": "Data Source=.\\stock.db;Version=3;UseUTF16Encoding=True;",
+  "XiaYingXianChangDu": "20", /* recomment: 20, 21, 22, 23, 24, 25 */ /* 下影线长度 */
+  "JinRiZuiDiDieFu": "3" /* recomment: 2, 2.5, 3 */ /* (开盘价 - 最低价) / 开盘价 * 100 */ /* 今日最低跌幅 */
+}

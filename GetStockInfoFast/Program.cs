@@ -52,7 +52,6 @@ namespace GetStockInfoFast
                 else if (s.Length > 30)
                 {
                     // 存在
-                    //Console.WriteLine($"{code}");
                     var data = arr[1].Substring(1).Split(',');
                     var name = data[0]; // 名称
                     decimal.TryParse(data[1], out decimal jinKai); // 今开
@@ -74,7 +73,12 @@ namespace GetStockInfoFast
                     rowDatas.Add(rowData);
                 }
             };
-            //Console.WriteLine("Saving data to database...");
+            using (var conn = new SQLiteConnection(connectionString))
+            {
+                conn.Open();
+                var cmdDelete = new SQLiteCommand($"delete from StockStatus", conn);
+                cmdDelete.ExecuteNonQuery();
+            }
             using (var conn = new SQLiteConnection(connectionString))
             {
                 conn.Open();
