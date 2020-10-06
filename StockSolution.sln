@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeviceStockData", "DeviceSt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RisingStocks", "RisingStocks\RisingStocks.csproj", "{08F270C8-30F4-4A1C-9432-C3346AAF2ECF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RecommendStockApp", "RecommendStockApp", "{77216B7D-FDAA-41F4-B798-105E98EC9C40}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RisingStocksApp", "RisingStocksApp", "{FD8A1A00-412D-40B7-9B57-84BB7B4C0BAD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,6 +58,12 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9EFB4D93-BADD-44DA-A452-1F22AAFC18A6} = {77216B7D-FDAA-41F4-B798-105E98EC9C40}
+		{BD1F7295-3C9B-4DDE-97BE-7AFEF85371B9} = {77216B7D-FDAA-41F4-B798-105E98EC9C40}
+		{586BFDBF-B819-4FAC-A944-751AF1061C32} = {FD8A1A00-412D-40B7-9B57-84BB7B4C0BAD}
+		{08F270C8-30F4-4A1C-9432-C3346AAF2ECF} = {FD8A1A00-412D-40B7-9B57-84BB7B4C0BAD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8E5A1C7F-3B1F-464D-8706-A04354DF0538}
