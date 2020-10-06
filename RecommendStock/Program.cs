@@ -65,7 +65,7 @@ namespace RecommendStock
                     if (name.StartsWith("ST") ||
                         name.StartsWith("*ST") ||
                         name.StartsWith("N") ||
-                        name.EndsWith("退") ||
+                        name.Contains("退") ||
                         price == 0 ||
                         zhangFuDianShu == 0 ||
                         jinKai == 0
@@ -194,7 +194,7 @@ namespace RecommendStock
             }
         }
         /// <summary>
-        /// 
+        /// 日K线图的Base64
         /// </summary>
         /// <param name="stockCode"></param>
         /// <returns></returns>
@@ -219,6 +219,11 @@ namespace RecommendStock
                 }
             }
         }
+        /// <summary>
+        /// 周K线图的Base64
+        /// </summary>
+        /// <param name="stockCode"></param>
+        /// <returns></returns>
         public static string GetZhouKXianImageBase64(string stockCode)
         {
             var webreq = System.Net.WebRequest.Create($"http://image.sinajs.cn/newchart/weekly/n/{stockCode}.gif?_=" + DateTime.Now.Ticks);

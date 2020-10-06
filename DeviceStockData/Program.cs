@@ -16,7 +16,7 @@ namespace DeviceStockData
 {
     class Program
     {
-        static List<string> codeList = new List<string>();
+        static List<Codes> codeList = new List<Codes>();
         static string connectionString = string.Empty;
         static string codesTableName = string.Empty;
         static void Main(string[] args)
@@ -38,7 +38,7 @@ namespace DeviceStockData
                 ada.Fill(dt);
                 foreach (DataRow dr in dt.Rows)
                 {
-                    codeList.Add($"{dr["Code"].ToString()}");
+                    codeList.Add(new Codes{ Code = dr["Code"].ToString(), Exchange = dr["Exchange"].ToString()});
                 }
             }
 
@@ -56,7 +56,7 @@ namespace DeviceStockData
 
                 foreach (var stockCode in codeList)
                 {
-                    var q = $"https://q.stock.sohu.com/hisHq?code=cn_{stockCode}&start={startDate}&end={endDate}&stat=1&order=D&period=d&callback=historySearchHandler&rt=jsonp";
+                    var q = $"https://q.stock.sohu.com/hisHq?code=cn_{stockCode.Code}&start={startDate}&end={endDate}&stat=1&order=D&period=d&callback=historySearchHandler&rt=jsonp";
                     var ___s = GetHtmltxt(q);
                     var jsonData = ___s.Replace("historySearchHandler(", string.Empty).Replace("\n", string.Empty).TrimEnd(')');
                     // Console.WriteLine(stockCode);
@@ -74,14 +74,15 @@ namespace DeviceStockData
                     foreach (var data in _arrJsonData)
                     {
                         var row = new RowData();
-                        row.Code = stockCode;
+                        row.Code = stockCode.Code;
+                        row.Exchange = stockCode.Exchange;
                         row.HisDate = Convert.ToDateTime(data[0], new DateTimeFormatInfo { ShortDatePattern = "yyyy-MM-dd" });
                         decimal.TryParse(data[1].ToString(), out decimal jinKai); // 今开
-                        decimal.TryParse(data[2].ToString(), out decimal zuiGao); // 最高
+                        decimal.TryParse(data[2].ToString(), out decimal shouPan); // 收盘
                         decimal.TryParse(data[3].ToString(), out decimal shangZhangJinE); // 上涨金额
                         decimal.TryParse(data[4].ToString().TrimEnd('%'), out decimal shangZhangFuDu); // 上涨幅度
                         decimal.TryParse(data[5].ToString(), out decimal zuiDi); // 最低
-                        decimal.TryParse(data[6].ToString(), out decimal shouPan); // 收盘
+                        decimal.TryParse(data[6].ToString(), out decimal zuiGao); // 最高
                         decimal.TryParse(data[7].ToString(), out decimal chengJiaoLiang); // 成交量
                         decimal.TryParse(data[8].ToString(), out decimal chengJiaoE); // 成交额
                         decimal.TryParse(data[9].ToString().TrimEnd('%'), out decimal huanShouLv); // 换手率
@@ -95,9 +96,10 @@ namespace DeviceStockData
                         row.ChengJiaoE = chengJiaoE;
                         row.HuanShouLv = huanShouLv;
 
-                        var cmd = new SQLiteCommand($"INSERT INTO StockHistory(Code, HisDate, JinKai, ZuiGao, ShangZhangJinE, ShangZhangFuDu, ZuiDi, ShouPan, ChengJiaoLiang, ChengJiaoE, HuanShouLv) VALUES (@Code, @HisDate, @JinKai, @ZuiGao, @ShangZhangJinE, @ShangZhangFuDu, @ZuiDi, @ShouPan, @ChengJiaoLiang, @ChengJiaoE, @HuanShouLv)", conn, trans);
+                        var cmd = new SQLiteCommand($"INSERT INTO StockHistory(Code, Exchange, HisDate, JinKai, ZuiGao, ShangZhangJinE, ShangZhangFuDu, ZuiDi, ShouPan, ChengJiaoLiang, ChengJiaoE, HuanShouLv) VALUES (@Code, @Exchange, @HisDate, @JinKai, @ZuiGao, @ShangZhangJinE, @ShangZhangFuDu, @ZuiDi, @ShouPan, @ChengJiaoLiang, @ChengJiaoE, @HuanShouLv)", conn, trans);
                         cmd.Parameters.Clear();
                         cmd.Parameters.Add(new SQLiteParameter("@Code", row.Code));
+                        cmd.Parameters.Add(new SQLiteParameter("@Exchange", row.Exchange));
                         cmd.Parameters.Add(new SQLiteParameter("@HisDate", row.HisDate));
                         cmd.Parameters.Add(new SQLiteParameter("@JinKai", row.JinKai));
                         cmd.Parameters.Add(new SQLiteParameter("@ZuiGao", row.ZuiGao));
@@ -141,6 +143,10 @@ namespace DeviceStockData
         /// </summary>
         public string Code { get; set; }
         /// <summary>
+        /// Exchange
+        /// </summary>
+        public string Exchange { get; set; }
+        /// <summary>
         /// 日期
         /// </summary>
         public DateTime HisDate { get; set; }
@@ -180,5 +186,10 @@ namespace DeviceStockData
         /// 换手率
         /// </summary>
         public decimal HuanShouLv { get; set; }
+    }
+    sealed class Codes
+    {
+        public string Exchange { get; set; }
+        public string Code { get; set; }
     }
 }
