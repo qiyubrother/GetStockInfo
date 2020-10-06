@@ -42,7 +42,7 @@ namespace RisingStocks
             swReport.WriteLine($"<link rel='stylesheet' href='https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css'>  ");
             swReport.WriteLine($"<script src='https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js'></script>");
             swReport.WriteLine($"<script src='https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js'></script>");
-            swReport.WriteLine($"<title>Recommend Stock Report</title>");
+            swReport.WriteLine($"<title>Rising Stocks Report</title>");
             swReport.WriteLine($"</head>");
             swReport.WriteLine($"<body>");
 
