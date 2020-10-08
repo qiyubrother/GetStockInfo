@@ -1,0 +1,4 @@
+{
+  "ConnectionString": "Data Source=.\\stock.db;Version=3;UseUTF16Encoding=True;",
+  "CodeSource": "select * from Codes_SZ" /* Codes_SH, Codes_SZ, Codes_SZ_CY, Codes_SZ_ZX */
+}
