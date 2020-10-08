@@ -143,14 +143,24 @@ namespace RecommendStock
                 detailBuilder.Append($"<tr><td>&nbsp;</td><td><a target='_blank' href='http://quote.eastmoney.com/{zx}.html'>中小板指</a><br>{zx}</td><td><image src='data:image/png;base64,{GetFenShiImageBase64(zx)}' /></td><td><image src='data:image/png;base64,{GetRiKXianImageBase64(zx)}' /></td><td><image src='data:image/png;base64,{GetZhouKXianImageBase64(zx)}' /></td></tr>");
                 detailBuilder.Append($"<tr><td>&nbsp;</td><td><a target='_blank' href='http://quote.eastmoney.com/{kc50}.html'>科创50指数</a><br>{kc50}</td><td><image src='data:image/png;base64,{GetFenShiImageBase64(kc50)}' /></td><td><image src='data:image/png;base64,{GetRiKXianImageBase64(kc50)}' /></td><td><image src='data:image/png;base64,{GetZhouKXianImageBase64(kc50)}' /></td></tr>");
                 swReport.WriteLine($"<table class='table table-striped table-bordered table-hover'>");
-                swReport.WriteLine($"<tr><th>序号</th><th>代码</th><th>名称</th><th>当前价</th><th>推荐等级(数值越大越好)</th><th>下影线长度(%)(数值越小越好)</th><th>今日最低跌幅(%)(数值越小越好)</th><th>卖1(量,价)</th><th>建议卖出价(当前价的1.025倍)</th></tr>");
+                swReport.WriteLine($"<tr><th>序号</th><th>代码</th><th>名称</th><th>行业</th><th>当前价</th><th>推荐等级(数值越大越好)</th><th>下影线长度(%)(数值越小越好)</th><th>今日最低跌幅(%)(数值越小越好)</th><th>卖1(量,价)</th><th>建议卖出价(当前价的1.025倍)</th></tr>");
                 lstRecommandStock.Sort(new CompareStock<RecommendStock>());
                 int pos = 0;
                 foreach (var item in lstRecommandStock)
                 {
                     ++pos;
-                    swReport.WriteLine($"<tr><td>{pos}</td><td>{item.Exchange}{item.Code}</td><td><a target='_blank' href='http://quote.eastmoney.com/{item.Code}.html'>{item.Name}</a></td><td>{item.Price}</td><td>{item.Level}</td><td>{item.XiaYingXianChangDu}</td><td>{item.JinRiZuiDiDieFu}</td><td>{GetMai1(item.Exchange + item.Code)}</td><td>{Math.Round(Convert.ToSingle(item.Price) * 1.025, 2)}</td></tr>");
-                    detailBuilder.Append($"<tr><td>{pos}</td><td><a target='_blank' href='http://quote.eastmoney.com/{item.Code}.html'>{item.Name}</a><br>{item.Exchange}{item.Code}</td><td><image src='data:image/png;base64,{GetFenShiImageBase64(item.Exchange+item.Code)}' /></td><td><image src='data:image/png;base64,{GetRiKXianImageBase64(item.Exchange + item.Code)}' /></td><td><image src='data:image/png;base64,{GetZhouKXianImageBase64(item.Exchange + item.Code)}' /></td></tr>");
+                    var industry = string.Empty;
+                    var industryHref = "#";
+                    var __ada = new SQLiteDataAdapter($"select * from StockIndustry where Code='{item.Code}'", conn);
+                    var __dt = new DataTable();
+                    __ada.Fill(__dt);
+                    if (__dt.Rows.Count > 0)
+                    {
+                        industry = __dt.Rows[0]["Industry"].ToString();
+                        industryHref = __dt.Rows[0]["Href"].ToString();
+                    }
+                    swReport.WriteLine($"<tr><td>{pos}</td><td>{item.Exchange}{item.Code}</td><td><a target='_blank' href='http://quote.eastmoney.com/{item.Code}.html'>{item.Name}</a></td><td><a target='_blank' href='{industryHref}'>{industry}</a></td><td>{item.Price}</td><td>{item.Level}</td><td>{item.XiaYingXianChangDu}</td><td>{item.JinRiZuiDiDieFu}</td><td>{GetMai1(item.Exchange + item.Code)}</td><td>{Math.Round(Convert.ToSingle(item.Price) * 1.025, 2)}</td></tr>");
+                    detailBuilder.Append($"<tr><td>{pos}</td><td><a target='_blank' href='http://quote.eastmoney.com/{item.Code}.html'>{item.Name}</a><br>{item.Exchange}{item.Code}<br /><a target='_blank' href='{industryHref}'>{industry}</a></td><td><image src='data:image/png;base64,{GetFenShiImageBase64(item.Exchange+item.Code)}' /></td><td><image src='data:image/png;base64,{GetRiKXianImageBase64(item.Exchange + item.Code)}' /></td><td><image src='data:image/png;base64,{GetZhouKXianImageBase64(item.Exchange + item.Code)}' /></td></tr>");
                 }
                 swReport.WriteLine($"</table>");
                 detailBuilder.Append($"</table>");

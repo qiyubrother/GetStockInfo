@@ -106,7 +106,17 @@ namespace RisingStocks
                     {
                         ++pos;
                         //Console.WriteLine(code.Code);
-                        detailBuilder.Append($"<tr><td>{pos}</td><td><a target='_blank' href='http://quote.eastmoney.com/{code.Code}.html'>{name}</a><br />{code.Exchange}{code.Code}</td><td><image src='data:image/png;base64,{GetFenShiImageBase64(code.Exchange + code.Code)}' /></td><td><image src='data:image/png;base64,{GetRiKXianImageBase64(code.Exchange + code.Code)}' /></td><td><image src='data:image/png;base64,{GetZhouKXianImageBase64(code.Exchange + code.Code)}' /></td></tr>");
+                        var industry = string.Empty;
+                        var industryHref = "#";
+                        var __ada = new SQLiteDataAdapter($"select * from StockIndustry where Code='{code.Code}'", conn);
+                        var __dt = new DataTable();
+                        __ada.Fill(__dt);
+                        if (__dt.Rows.Count > 0)
+                        {
+                            industry = __dt.Rows[0]["Industry"].ToString();
+                            industryHref = __dt.Rows[0]["Href"].ToString();
+                        }
+                        detailBuilder.Append($"<tr><td>{pos}</td><td><a target='_blank' href='http://quote.eastmoney.com/{code.Code}.html'>{name}</a><br />{code.Exchange}{code.Code}<br /><a target='_blank' href='{industryHref}'>{industry}</a></td><td><image src='data:image/png;base64,{GetFenShiImageBase64(code.Exchange + code.Code)}' /></td><td><image src='data:image/png;base64,{GetRiKXianImageBase64(code.Exchange + code.Code)}' /></td><td><image src='data:image/png;base64,{GetZhouKXianImageBase64(code.Exchange + code.Code)}' /></td></tr>");
                     }
                 }
                 detailBuilder.Append($"</table>");
