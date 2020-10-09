@@ -1,7 +1,8 @@
 {
-  "ConnectionString": "Data Source=.\\stock.db;Version=3;UseUTF16Encoding=True;",
+  "ConnectionString": "Data Source=<path>\\stock.db;Version=3;UseUTF16Encoding=True;",
   "XiaYingXianChangDu": "20", /* recomment: 20, 21, 22, 23, 24, 25 */ /* 下影线长度 */
   "JinRiZuiDiDieFu": "3", /* recomment: 2, 2.5, 3 */ /* (开盘价 - 最低价) / 开盘价 * 100 */ /* 今日最低跌幅 */
+  "JianYiMaiChuXiShu": "1.026", /* 建议卖出系数。建议卖出系数乘当前价就是建议卖出价 */
   "ZuiDiZhangFu": "1", /* 最低涨幅(%) */
   "ZuiGaoZhangFu": "20", /* 最高涨幅(%) */
   "Mai1DaYuLing": true /* 卖1大于0 */

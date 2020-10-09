@@ -30,6 +30,7 @@ namespace RecommendStock
             connectionString = connectionString.Replace("<path>", dbPath);
             var paramXiaYingXianChangDu = Convert.ToInt32(jo["XiaYingXianChangDu"].ToString()); // 下影线长度
             var paramJinRiZuiDiDieFu = Convert.ToSingle(jo["JinRiZuiDiDieFu"].ToString()); // 今日最低跌幅
+            var paramJianYiMaiChuXiShu = Convert.ToSingle(jo["JianYiMaiChuXiShu"].ToString()); // 建议卖出系数
             var paramZuiDiZhangFu = Convert.ToSingle(jo["ZuiDiZhangFu"].ToString()); // 最低涨幅(%)
             var paramZuiGaoZhangFu = Convert.ToSingle(jo["ZuiGaoZhangFu"].ToString()); // 最高涨幅(%)
             var paramMai1DaYuLing = Convert.ToBoolean(jo["Mai1DaYuLing"].ToString()); // 卖1大于0
@@ -182,7 +183,7 @@ namespace RecommendStock
                         industry = __dt.Rows[0]["Industry"].ToString();
                         industryHref = __dt.Rows[0]["Href"].ToString();
                     }
-                    swReport.WriteLine($"<tr><td>{pos}</td><td>{item.Exchange}{item.Code}</td><td><a target='_blank' href='http://quote.eastmoney.com/{item.Code}.html'>{item.Name}</a></td><td><a target='_blank' href='{industryHref}'>{industry}</a></td><td>{item.Price}</td><td>{item.Level}</td><td>{item.XiaYingXianChangDu}</td><td>{item.JinRiZuiDiDieFu}</td><td>{GetMai1(item.Exchange + item.Code)}</td><td>{Math.Round(Convert.ToSingle(item.Price) * 1.025, 2)}</td></tr>");
+                    swReport.WriteLine($"<tr><td>{pos}</td><td>{item.Exchange}{item.Code}</td><td><a target='_blank' href='http://quote.eastmoney.com/{item.Code}.html'>{item.Name}</a></td><td><a target='_blank' href='{industryHref}'>{industry}</a></td><td>{item.Price}</td><td>{item.Level}</td><td>{item.XiaYingXianChangDu}</td><td>{item.JinRiZuiDiDieFu}</td><td>{GetMai1(item.Exchange + item.Code)}</td><td>{Math.Round(Convert.ToSingle(item.Price) * paramJianYiMaiChuXiShu, 2)}</td></tr>");
                     detailBuilder.Append($"<tr><td>{pos}</td><td><a target='_blank' href='http://quote.eastmoney.com/{item.Code}.html'>{item.Name}</a><br>{item.Exchange}{item.Code}<br /><a target='_blank' href='{industryHref}'>{industry}</a></td><td><image src='data:image/png;base64,{GetFenShiImageBase64(item.Exchange+item.Code)}' /></td><td><image src='data:image/png;base64,{GetRiKXianImageBase64(item.Exchange + item.Code)}' /></td><td><image src='data:image/png;base64,{GetZhouKXianImageBase64(item.Exchange + item.Code)}' /></td></tr>");
                 }
                 swReport.WriteLine($"</table>");
