@@ -30,6 +30,10 @@ namespace RecommendStock
             connectionString = connectionString.Replace("<path>", dbPath);
             var paramXiaYingXianChangDu = Convert.ToInt32(jo["XiaYingXianChangDu"].ToString()); // 下影线长度
             var paramJinRiZuiDiDieFu = Convert.ToSingle(jo["JinRiZuiDiDieFu"].ToString()); // 今日最低跌幅
+            var paramZuiDiZhangFu = Convert.ToSingle(jo["ZuiDiZhangFu"].ToString()); // 最低涨幅(%)
+            var paramZuiGaoZhangFu = Convert.ToSingle(jo["ZuiGaoZhangFu"].ToString()); // 最高涨幅(%)
+            var paramMai1DaYuLing = Convert.ToBoolean(jo["Mai1DaYuLing"].ToString()); // 卖1大于0
+
             var dt = new DataTable();
             var swReport = new StreamWriter(Path.Combine(fi.Directory.FullName, $"RecommandStock.html"), false, Encoding.UTF8);
             var lstRecommandStock = new List<RecommendStock>();
@@ -125,7 +129,26 @@ namespace RecommendStock
                             var level = hLevel + tLevel;
                             if (level > 3)
                             {
-                                lstRecommandStock.Add(new RecommendStock { Code = code, Exchange = exchange, Name = name, Level = level.ToString(), Price = price.ToString(), JinRiZuiDiDieFu = _jinRiZuiDiDieFu.ToString(), XiaYingXianChangDu = xiaYingXianChangDu.ToString() }); ;
+                                if (paramMai1DaYuLing)
+                                {
+                                    var mai1Cnt = GetMai1(exchange + code).Split(',')[0].Trim();
+                                    if (mai1Cnt != "0")
+                                    {
+                                        float v = (float)((price - jinKai) / jinKai * 100);
+                                        if (v >= paramZuiDiZhangFu && v <= paramZuiGaoZhangFu)
+                                        {
+                                            lstRecommandStock.Add(new RecommendStock { Code = code, Exchange = exchange, Name = name, Level = level.ToString(), Price = price.ToString(), JinRiZuiDiDieFu = _jinRiZuiDiDieFu.ToString(), XiaYingXianChangDu = xiaYingXianChangDu.ToString() });
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    float v = (float)((price - jinKai) / jinKai * 100);
+                                    if (v >= paramZuiDiZhangFu && v <= paramZuiGaoZhangFu)
+                                    {
+                                        lstRecommandStock.Add(new RecommendStock { Code = code, Exchange = exchange, Name = name, Level = level.ToString(), Price = price.ToString(), JinRiZuiDiDieFu = _jinRiZuiDiDieFu.ToString(), XiaYingXianChangDu = xiaYingXianChangDu.ToString() });
+                                    }
+                                }
                             }
                         }
                     }
@@ -167,7 +190,7 @@ namespace RecommendStock
                 swReport.WriteLine(detailBuilder);
                 swReport.WriteLine($"<div style='margin:0;padding:0;text-align:center'>");
                 swReport.WriteLine($"<h5>生成时间：{reportDateTime}</h5>");
-                swReport.WriteLine($"<h5>软件版本：{1.6}</h5>");
+                swReport.WriteLine($"<h5>软件版本：{1.7}</h5>");
                 swReport.WriteLine($"</div>");
                 swReport.WriteLine($"</body>");
                 swReport.WriteLine($"<html>");
