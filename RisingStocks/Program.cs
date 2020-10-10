@@ -117,10 +117,10 @@ namespace RisingStocks
                     var adaD = new SQLiteDataAdapter($"select * from StockHistory where Code='{code.Code}' and date(hisDate) >= date('{hisDateStart}') and date(hisDate) <= date('{hisDateEnd}') order by hisDate desc limit {decreaseDays}", conn);
                     var dtD = new DataTable();
                     adaD.Fill(dtD);
-                    Console.WriteLine($"rise:{dtR.Rows.Count}, {risingDays}");
-                    Console.WriteLine($"fall:{dtF.Rows.Count}, {fallingDays}");
-                    Console.WriteLine($"increase:{dtI.Rows.Count}, {increaseDays}");
-                    Console.WriteLine($"decrease:{dtD.Rows.Count}, {decreaseDays}");
+                    //Console.WriteLine($"rise:{dtR.Rows.Count}, {risingDays}");
+                    //Console.WriteLine($"fall:{dtF.Rows.Count}, {fallingDays}");
+                    //Console.WriteLine($"increase:{dtI.Rows.Count}, {increaseDays}");
+                    //Console.WriteLine($"decrease:{dtD.Rows.Count}, {decreaseDays}");
 
                     #region 计算连续阳线天数
                     if (dtR.Rows.Count >= risingDays)
