@@ -59,7 +59,6 @@ namespace DeviceStockData
                     var q = $"https://q.stock.sohu.com/hisHq?code=cn_{stockCode.Code}&start={startDate}&end={endDate}&stat=1&order=D&period=d&callback=historySearchHandler&rt=jsonp";
                     var ___s = GetHtmltxt(q);
                     var jsonData = ___s.Replace("historySearchHandler(", string.Empty).Replace("\n", string.Empty).TrimEnd(')');
-                    // Console.WriteLine(stockCode);
                     if (jsonData == "{}")
                     {
                         continue;
