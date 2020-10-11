@@ -183,8 +183,10 @@ namespace RecommendStock
                         industry = __dt.Rows[0]["Industry"].ToString();
                         industryHref = __dt.Rows[0]["Href"].ToString();
                     }
+                    var _rank = GetIndustryRank(item.Code, conn);
+                    var rank = _rank == string.Empty ? string.Empty : $"<br />R{_rank}";
                     swReport.WriteLine($"<tr><td>{pos}</td><td>{item.Exchange}{item.Code}</td><td><a target='_blank' href='http://quote.eastmoney.com/{item.Code}.html'>{item.Name}</a></td><td><a target='_blank' href='{industryHref}'>{industry}</a></td><td>{item.Price}</td><td>{item.Level}</td><td>{item.XiaYingXianChangDu}</td><td>{item.JinRiZuiDiDieFu}</td><td>{GetMai1(item.Exchange + item.Code)}</td><td>{Math.Round(Convert.ToSingle(item.Price) * paramJianYiMaiChuXiShu, 2)}</td></tr>");
-                    detailBuilder.Append($"<tr><td>{pos}</td><td><a target='_blank' href='http://quote.eastmoney.com/{item.Code}.html'>{item.Name}</a><br>{item.Exchange}{item.Code}<br /><a target='_blank' href='{industryHref}'>{industry}</a></td><td><image src='data:image/png;base64,{GetFenShiImageBase64(item.Exchange+item.Code)}' /></td><td><image src='data:image/png;base64,{GetRiKXianImageBase64(item.Exchange + item.Code)}' /></td><td><image src='data:image/png;base64,{GetZhouKXianImageBase64(item.Exchange + item.Code)}' /></td></tr>");
+                    detailBuilder.Append($"<tr><td>{pos}</td><td><a target='_blank' href='http://quote.eastmoney.com/{item.Code}.html'>{item.Name}</a><br>{item.Exchange}{item.Code}<br /><a target='_blank' href='{industryHref}'>{industry}</a>{rank}</td><td><image src='data:image/png;base64,{GetFenShiImageBase64(item.Exchange+item.Code)}' /></td><td><image src='data:image/png;base64,{GetRiKXianImageBase64(item.Exchange + item.Code)}' /></td><td><image src='data:image/png;base64,{GetZhouKXianImageBase64(item.Exchange + item.Code)}' /></td></tr>");
                 }
                 swReport.WriteLine($"</table>");
                 detailBuilder.Append($"</table>");
@@ -324,6 +326,18 @@ namespace RecommendStock
             reader.Close();
 
             return str;
+        }
+
+        public static string GetIndustryRank(string stockCode, SQLiteConnection conn)
+        {
+            var __ada = new SQLiteDataAdapter($"select * from IndustryRanking where Code='{stockCode}'", conn);
+            var __dt = new DataTable();
+            __ada.Fill(__dt);
+            if (__dt.Rows.Count > 0)
+            {
+                return __dt.Rows[0]["Rank"].ToString();
+            }
+            return string.Empty;
         }
     }
 

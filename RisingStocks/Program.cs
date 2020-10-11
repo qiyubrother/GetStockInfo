@@ -117,10 +117,9 @@ namespace RisingStocks
                     var adaD = new SQLiteDataAdapter($"select * from StockHistory where Code='{code.Code}' and date(hisDate) >= date('{hisDateStart}') and date(hisDate) <= date('{hisDateEnd}') order by hisDate desc limit {decreaseDays}", conn);
                     var dtD = new DataTable();
                     adaD.Fill(dtD);
-                    //Console.WriteLine($"rise:{dtR.Rows.Count}, {risingDays}");
-                    //Console.WriteLine($"fall:{dtF.Rows.Count}, {fallingDays}");
-                    //Console.WriteLine($"increase:{dtI.Rows.Count}, {increaseDays}");
-                    //Console.WriteLine($"decrease:{dtD.Rows.Count}, {decreaseDays}");
+
+                    var _rank = GetIndustryRank(code.Code, conn);
+                    var rank = _rank == string.Empty ? string.Empty : $"<br />R{_rank}";
 
                     #region 计算连续阳线天数
                     if (dtR.Rows.Count >= risingDays)
@@ -151,7 +150,7 @@ namespace RisingStocks
                                 industry = __dt.Rows[0]["Industry"].ToString();
                                 industryHref = __dt.Rows[0]["Href"].ToString();
                             }
-                            risingDetailBuilder.Append($"<tr><td style='color:red;'>R{risingDays}-{posYang}</td><td><a target='_blank' href='http://quote.eastmoney.com/{code.Code}.html'>{name}</a><br />{code.Exchange}{code.Code}<br /><a target='_blank' href='{industryHref}'>{industry}</a></td><td><image src='data:image/png;base64,{GetFenShiImageBase64(code.Exchange + code.Code)}' /></td><td><image src='data:image/png;base64,{GetRiKXianImageBase64(code.Exchange + code.Code)}' /></td><td><image src='data:image/png;base64,{GetZhouKXianImageBase64(code.Exchange + code.Code)}' /></td></tr>");
+                            risingDetailBuilder.Append($"<tr><td style='color:red;'>R{risingDays}-{posYang}</td><td><a target='_blank' href='http://quote.eastmoney.com/{code.Code}.html'>{name}</a><br />{code.Exchange}{code.Code}<br /><a target='_blank' href='{industryHref}'>{industry}</a>{rank}</td><td><image src='data:image/png;base64,{GetFenShiImageBase64(code.Exchange + code.Code)}' /></td><td><image src='data:image/png;base64,{GetRiKXianImageBase64(code.Exchange + code.Code)}' /></td><td><image src='data:image/png;base64,{GetZhouKXianImageBase64(code.Exchange + code.Code)}' /></td></tr>");
                         }
                     }
                     #endregion
@@ -184,7 +183,7 @@ namespace RisingStocks
                                 industry = __dt.Rows[0]["Industry"].ToString();
                                 industryHref = __dt.Rows[0]["Href"].ToString();
                             }
-                            fallingDetailBuilder.Append($"<tr><td style='color:darkgreen;'>F{fallingDays}-{posYin}</td><td><a target='_blank' href='http://quote.eastmoney.com/{code.Code}.html'>{name}</a><br />{code.Exchange}{code.Code}<br /><a target='_blank' href='{industryHref}'>{industry}</a></td><td><image src='data:image/png;base64,{GetFenShiImageBase64(code.Exchange + code.Code)}' /></td><td><image src='data:image/png;base64,{GetRiKXianImageBase64(code.Exchange + code.Code)}' /></td><td><image src='data:image/png;base64,{GetZhouKXianImageBase64(code.Exchange + code.Code)}' /></td></tr>");
+                            fallingDetailBuilder.Append($"<tr><td style='color:darkgreen;'>F{fallingDays}-{posYin}</td><td><a target='_blank' href='http://quote.eastmoney.com/{code.Code}.html'>{name}</a><br />{code.Exchange}{code.Code}<br /><a target='_blank' href='{industryHref}'>{industry}</a>{rank}</td><td><image src='data:image/png;base64,{GetFenShiImageBase64(code.Exchange + code.Code)}' /></td><td><image src='data:image/png;base64,{GetRiKXianImageBase64(code.Exchange + code.Code)}' /></td><td><image src='data:image/png;base64,{GetZhouKXianImageBase64(code.Exchange + code.Code)}' /></td></tr>");
                         }
                     }
                     #endregion
@@ -208,7 +207,7 @@ namespace RisingStocks
                                 industry = __dt.Rows[0]["Industry"].ToString();
                                 industryHref = __dt.Rows[0]["Href"].ToString();
                             }
-                            increaseDetailBuilder.Append($"<tr><td style='color:red;'>I{increaseDays},{increase}%-{posIncrease}</td><td><a target='_blank' href='http://quote.eastmoney.com/{code.Code}.html'>{name}</a><br />{code.Exchange}{code.Code}<br /><a target='_blank' href='{industryHref}'>{industry}</a></td><td><image src='data:image/png;base64,{GetFenShiImageBase64(code.Exchange + code.Code)}' /></td><td><image src='data:image/png;base64,{GetRiKXianImageBase64(code.Exchange + code.Code)}' /></td><td><image src='data:image/png;base64,{GetZhouKXianImageBase64(code.Exchange + code.Code)}' /></td></tr>");
+                            increaseDetailBuilder.Append($"<tr><td style='color:red;'>I{increaseDays},{increase}%-{posIncrease}</td><td><a target='_blank' href='http://quote.eastmoney.com/{code.Code}.html'>{name}</a><br />{code.Exchange}{code.Code}<br /><a target='_blank' href='{industryHref}'>{industry}</a>{rank}</td><td><image src='data:image/png;base64,{GetFenShiImageBase64(code.Exchange + code.Code)}' /></td><td><image src='data:image/png;base64,{GetRiKXianImageBase64(code.Exchange + code.Code)}' /></td><td><image src='data:image/png;base64,{GetZhouKXianImageBase64(code.Exchange + code.Code)}' /></td></tr>");
                         }
                     }
                     #endregion
@@ -232,7 +231,7 @@ namespace RisingStocks
                                 industry = __dt.Rows[0]["Industry"].ToString();
                                 industryHref = __dt.Rows[0]["Href"].ToString();
                             }
-                            decreaseDetailBuilder.Append($"<tr><td style='color:darkgreen;'>D{decreaseDays},{decrease}%-{posDecrease}</td><td><a target='_blank' href='http://quote.eastmoney.com/{code.Code}.html'>{name}</a><br />{code.Exchange}{code.Code}<br /><a target='_blank' href='{industryHref}'>{industry}</a></td><td><image src='data:image/png;base64,{GetFenShiImageBase64(code.Exchange + code.Code)}' /></td><td><image src='data:image/png;base64,{GetRiKXianImageBase64(code.Exchange + code.Code)}' /></td><td><image src='data:image/png;base64,{GetZhouKXianImageBase64(code.Exchange + code.Code)}' /></td></tr>");
+                            decreaseDetailBuilder.Append($"<tr><td style='color:darkgreen;'>D{decreaseDays},{decrease}%-{posDecrease}</td><td><a target='_blank' href='http://quote.eastmoney.com/{code.Code}.html'>{name}</a><br />{code.Exchange}{code.Code}<br /><a target='_blank' href='{industryHref}'>{industry}</a>{rank}</td><td><image src='data:image/png;base64,{GetFenShiImageBase64(code.Exchange + code.Code)}' /></td><td><image src='data:image/png;base64,{GetRiKXianImageBase64(code.Exchange + code.Code)}' /></td><td><image src='data:image/png;base64,{GetZhouKXianImageBase64(code.Exchange + code.Code)}' /></td></tr>");
                         }
                     }
                     #endregion
@@ -294,6 +293,17 @@ namespace RisingStocks
             return str;
         }
 
+        public static string GetIndustryRank(string stockCode, SQLiteConnection conn)
+        {
+            var __ada = new SQLiteDataAdapter($"select * from IndustryRanking where Code='{stockCode}'", conn);
+            var __dt = new DataTable();
+            __ada.Fill(__dt);
+            if (__dt.Rows.Count > 0)
+            {
+                return __dt.Rows[0]["Rank"].ToString();
+            }
+            return string.Empty;
+        }
         /// <summary>
         /// 分时图的Base64
         /// </summary>
