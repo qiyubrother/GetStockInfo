@@ -3,6 +3,6 @@
   "CodeSource": "select * from Codes_SH union select * from Codes_SZ union select * from Codes_SZ_CY union select * from Codes_SZ_ZX",
   "RisingDays": 4, /* 连续阳线天数 */
   "FallingDays": 8, /* 连续阴线天数 */
-  "Increase": "5,8", /* 连续N天上涨百分之P的股票 */
-  "Decrease": "6,30" /* 连续N天下降百分之P的股票 */
+  "Increase": "10,20", /* 连续N天上涨百分之P的股票 */
+  "Decrease": "10,30" /* 连续N天下降百分之P的股票 */
 }

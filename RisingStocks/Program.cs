@@ -87,7 +87,7 @@ namespace RisingStocks
                 {
                     codeList.Add(new Codes { Code = dr["Code"].ToString(), Exchange = dr["Exchange"].ToString() });
                 }
-                Console.WriteLine($"dt:{dt.Rows.Count}");
+                // Console.WriteLine($"dt:{dt.Rows.Count}");
                 foreach (var code in codeList)
                 {
                     var name = GetStockName(code.Exchange + code.Code);
