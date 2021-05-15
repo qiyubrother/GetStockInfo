@@ -22,7 +22,8 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Data;
 using System.Diagnostics;
-
+using Database;
+using System.Data.SqlClient;
 namespace IndustryRanking
 {
     /// <summary>
@@ -37,17 +38,10 @@ namespace IndustryRanking
         public bool IsOK = false;
         int pos = 0;
         private List<string> industryList = new List<string>();
-        string connectionString = string.Empty;
         public MainWindow()
         {
             InitializeComponent();
 
-            var fi = new FileInfo(Process.GetCurrentProcess().MainModule.FileName);
-            var s = File.ReadAllText(System.IO.Path.Combine(fi.Directory.FullName, "config.json"));
-            var dbPath = System.IO.Path.Combine(fi.Directory.Parent.Parent.FullName, "db");
-            JObject jo = (JObject)JsonConvert.DeserializeObject(s);
-            connectionString = jo["ConnectionString"].ToString();
-            connectionString = connectionString.Replace("<path>", dbPath);
             SuppressScriptErrors(web, true);
 
             industryList = new List<string>
@@ -142,21 +136,19 @@ namespace IndustryRanking
 
         public void WriteData(IndustryInfo data)
         {
-            using (var conn = new SQLiteConnection(connectionString))
-            {
-                conn.Open();
-                var cmd = new SQLiteCommand($"delete from IndustryRanking where Code = '{data.Code}' and Exchange='{data.Exchange}'", conn);
-                cmd.ExecuteNonQuery();
-                cmd = new SQLiteCommand($"INSERT INTO IndustryRanking(Code, Exchange, Name, Industry, Rank) VALUES (@Code, @Exchange, @Name, @Industry, @Rank)", conn);
-                cmd.Parameters.Clear();
-                cmd.Parameters.Add(new SQLiteParameter("@Code", data.Code));
-                cmd.Parameters.Add(new SQLiteParameter("@Exchange", data.Exchange.ToString()));
-                cmd.Parameters.Add(new SQLiteParameter("@Name", data.Name));
-                cmd.Parameters.Add(new SQLiteParameter("@Industry", data.Industry));
-                cmd.Parameters.Add(new SQLiteParameter("@Rank", data.Rank));
+            var cmd = new SqlCommand($"INSERT INTO IndustryRanking(Code, Exchange, Name, Industry, Rank) VALUES (@Code, @Exchange, @Name, @Industry, @Rank)");
+            cmd.Parameters.AddRange(new[] {
+                new SqlParameter("@Code", data.Code),
+                new SqlParameter("@Exchange", data.Exchange.ToString()),
+                new SqlParameter("@Name", data.Name),
+                new SqlParameter("@Industry", data.Industry),
+                new SqlParameter("@Rank", data.Rank)
+            });
 
-                cmd.ExecuteNonQuery();
-            }
+            SqlServer.Instance.ExcuteSQL(new [] {
+                new SqlCommand($"delete from IndustryRanking where Code = '{data.Code}' and Exchange='{data.Exchange}'"),
+                cmd
+            });
         }
 
         public void GetIndustryStockInfo(List<string> lst)

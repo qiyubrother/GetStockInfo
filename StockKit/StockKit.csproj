@@ -1,0 +1,179 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{0308944F-7CB7-47D3-A3D5-6CE2B62B4ADC}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>StockKit</RootNamespace>
+    <AssemblyName>StockKit</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>stock.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Aspose.Cells, Version=7.7.2.0, Culture=neutral, PublicKeyToken=00725b1ceb58d0a9, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\Aspose.Cells.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.mshtml, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UIAutomationProvider" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="WindowsFormsIntegration" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="FrmEditConnectString.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmEditConnectString.Designer.cs">
+      <DependentUpon>FrmEditConnectString.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmHistoryData.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmHistoryData.Designer.cs">
+      <DependentUpon>FrmHistoryData.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmImportStockCode.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmImportStockCode.Designer.cs">
+      <DependentUpon>FrmImportStockCode.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmMain.Designer.cs">
+      <DependentUpon>FrmMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmSetRiskDay.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmSetRiskDay.Designer.cs">
+      <DependentUpon>FrmSetRiskDay.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmStockPoolDetail.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmStockPoolDetail.Designer.cs">
+      <DependentUpon>FrmStockPoolDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmStockPoolMaster.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmStockPoolMaster.Designer.cs">
+      <DependentUpon>FrmStockPoolMaster.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MsgBox.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StockHelper.cs" />
+    <Compile Include="StockInfo.cs" />
+    <EmbeddedResource Include="FrmEditConnectString.resx">
+      <DependentUpon>FrmEditConnectString.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmHistoryData.resx">
+      <DependentUpon>FrmHistoryData.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmImportStockCode.resx">
+      <DependentUpon>FrmImportStockCode.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmMain.resx">
+      <DependentUpon>FrmMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmSetRiskDay.resx">
+      <DependentUpon>FrmSetRiskDay.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmStockPoolDetail.resx">
+      <DependentUpon>FrmStockPoolDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmStockPoolMaster.resx">
+      <DependentUpon>FrmStockPoolMaster.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Database\Database.csproj">
+      <Project>{1e262ac2-6bc2-46c8-95bf-f93bfff542b9}</Project>
+      <Name>Database</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Aspose.Cells.dll" />
+    <None Include="Resources\stock.ico" />
+    <Content Include="stock.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Report\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

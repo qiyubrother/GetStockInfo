@@ -14,7 +14,7 @@ namespace GetStockCode
         static void Main(string[] args)
         {
             List<Codes> lst = new List<Codes>(600000);
-            using (var conn = new SQLiteConnection(@"Data Source=.\stock.db;Version=3;UseUTF16Encoding=True;"))
+            //using (var conn = new SQLiteConnection(@"Data Source=.\stock.db;Version=3;UseUTF16Encoding=True;"))
             {
                 //conn.Open();
                 var exchange = "sz";

@@ -24,7 +24,9 @@ using System.Data;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
-
+using System.Data.SqlClient;
+using Database;
+using AhDung.WinForm;
 namespace GetIndustry
 {
     /// <summary>
@@ -39,57 +41,59 @@ namespace GetIndustry
         public bool IsOK = false;
         int pos = 0;
         private List<string> codeList = new List<string>();
-        string connectionString = string.Empty;
-        string codesTableName = string.Empty;
-        SQLiteConnection conn = null;
-        SQLiteTransaction trans = null;
+
         public MainWindow()
         {
             InitializeComponent();
 
-            var fi = new FileInfo(Process.GetCurrentProcess().MainModule.FileName);
-            var s = File.ReadAllText(System.IO.Path.Combine(fi.Directory.FullName, "config.json"));
-            var dbPath = System.IO.Path.Combine(fi.Directory.Parent.Parent.FullName, "db");
+            var s = File.ReadAllText(System.IO.Path.Combine("config.json"));
             JObject jo = (JObject)JsonConvert.DeserializeObject(s);
-            connectionString = jo["ConnectionString"].ToString();
-            connectionString = connectionString.Replace("<path>", dbPath);
-            codesTableName = jo["CodeSource"].ToString();
-
-            using (var __conn = new SQLiteConnection(connectionString))
+            SqlServer.ConnectionString = jo["ConnectionString"].ToString();
+            SqlServer.Instance.ExcuteSQL($"delete from StockIndustry where Industry = ''"); // 删除无效数据
+            var dt = SqlServer.Instance.GetDataTable($"select * from codes as a where a.code not in (select code from StockIndustry as b)");
+            if (dt.Rows.Count == 0)
             {
-                var ada = new SQLiteDataAdapter($"{codesTableName}", __conn);
-                var dt = new DataTable();
-                ada.Fill(dt);
-                foreach (DataRow dr in dt.Rows)
-                {
-                    codeList.Add($"{dr["Exchange"].ToString()}{dr["Code"].ToString()}");
-                }
+                OutputDebugString($"Empty data.");
+                Application.Current.Shutdown();
+                return;
             }
-            SuppressScriptErrors(web, true);
             
-            web.Navigated += (o, ex) => {
-                Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    try
-                    {
-                        Compute();
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine($"Compute.Exception::{e.Message}");
-                    }
-                    pos++;
-                    if (pos < codeList.Count)
-                    {
-                        GetIndustryInfo(codeList);
-                    }
-                    else
-                    {
-                        Close();
-                    }
-                }));
-            };
+            foreach (DataRow dr in dt.Rows)
+            {
+                codeList.Add($"{dr["Exchange"].ToString()}{dr["Code"].ToString()}");
+            }
+
+            SuppressScriptErrors(web, true);
+            web.Navigated += Navigated;
             Loaded += (sender, e) => GetIndustryInfo(codeList);
+        }
+
+        public void Navigated(object sender, NavigationEventArgs e)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                try
+                {
+                    Compute();
+                }
+                catch (Exception ex)
+                {
+                    OutputDebugString($"Compute.Exception::{ex.Message}");
+                }
+                pos++;
+                if (pos < codeList.Count)
+                {
+                    web.Dispose();
+                    web = new WebBrowser();
+                    web.Navigated += Navigated;
+                    grid.Children.Add(web);
+                    GetIndustryInfo(codeList);
+                }
+                else
+                {
+                    Close();
+                }
+            }));
         }
 
         private void WriteData(LiteStockInfo data)
@@ -97,18 +101,11 @@ namespace GetIndustry
             Console.WriteLine($"[{pos}/{codeList.Count}]{data.Exchange}{data.Code}, {data.Name}, {data.Industry}");
             try
             {
-                conn = new SQLiteConnection(connectionString);
-                conn.Open();
-                //trans = conn.BeginTransaction();
-                var cmd = new SQLiteCommand($"delete from StockIndustry where Code = '{data.Code}' and Exchange ='{data.Exchange}'", conn, trans);
-                cmd.ExecuteNonQuery();
-                cmd.Dispose();
-                cmd = new SQLiteCommand($"INSERT INTO StockIndustry(Code, Exchange, Name, Industry, ROE, IndustryROE, href) VALUES ('{data.Code}', '{data.Exchange}', '{data.Name}', '{data.Industry}', {data.ROE}, {data.IndustryROE}, '{data.Href}')", conn, trans);
-                cmd.ExecuteNonQuery();
-                cmd.Dispose();
-                //trans.Commit();
-                conn.Close();
-                conn.Dispose();
+                SqlServer.Instance.ExcuteSQL(new[]
+                {
+                    new SqlCommand($"delete from StockIndustry where Code = '{data.Code}' and Exchange ='{data.Exchange}'"),
+                    new SqlCommand($"INSERT INTO StockIndustry(Code, Exchange, Name, Industry, ROE, IndustryROE, href) VALUES ('{data.Code}', '{data.Exchange}', '{data.Name}', '{data.Industry}', {data.ROE}, {data.IndustryROE}, '{data.Href}')")
+                });
             }
             catch(Exception ex) { Console.WriteLine($"WriteData.Exception::{ex.Message}"); }
         }

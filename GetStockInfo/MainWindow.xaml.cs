@@ -17,11 +17,12 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using System.Data.SQLite;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Data;
 using System.Diagnostics;
+using Database;
+using System.Data.SqlClient;
 
 namespace GetStockInfo
 {
@@ -42,37 +43,28 @@ namespace GetStockInfo
         public MainWindow()
         {
             InitializeComponent();
-
-            var fi = new FileInfo(Process.GetCurrentProcess().MainModule.FileName);
-            var s = File.ReadAllText(System.IO.Path.Combine(fi.Directory.FullName, "config.json"));
-            var dbPath = System.IO.Path.Combine(fi.Directory.Parent.Parent.FullName, "db");
+            var s = File.ReadAllText(System.IO.Path.Combine("config.json"));
             JObject jo = (JObject)JsonConvert.DeserializeObject(s);
             connectionString = jo["ConnectionString"].ToString();
-            connectionString = connectionString.Replace("<path>", dbPath);
-            codesTableName = jo["CodeSource"].ToString();
-
-            using (var conn = new SQLiteConnection(connectionString))
+            SqlServer.ConnectionString = connectionString;
+            var dt = SqlServer.Instance.GetDataTable($"SELECT * FROM CODES");
+            foreach (DataRow dr in dt.Rows)
             {
-                var ada = new SQLiteDataAdapter($"{codesTableName}", conn);
-                var dt = new DataTable();
-                ada.Fill(dt);
-                foreach (DataRow dr in dt.Rows)
-                {
-                    codeList.Add($"{dr["Exchange"].ToString()}{dr["Code"].ToString()}");
-                }
+                codeList.Add($"{dr["Exchange"].ToString()}{dr["Code"].ToString()}");
             }
             SuppressScriptErrors(web, true);
-
+            Loaded += (sender, e)=> GetStockInfo(codeList);
             web.Navigated += (o, ex) => {
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
                     try
                     {
                         Compute();
+                        DoEvents();
                     }
                     catch(Exception e)
                     {
-
+                        OutputDebugString($"Exception:{e.Message}, {codeList[pos]}, {pos}/{codeList.Count}, {e.StackTrace}");
                     }
                     pos++;
                     if (pos < codeList.Count)
@@ -83,42 +75,41 @@ namespace GetStockInfo
                     {
                         Close();
                     }
-                }));
+                }));                
             };
-            Loaded += (sender, e)=> GetStockInfo(codeList);
         }
 
         public void WriteData(StockInfo data)
         {
-            using (var conn = new SQLiteConnection(connectionString))
+            using (var conn = new SqlConnection(connectionString))
             {
                 conn.Open();
-                var cmd = new SQLiteCommand($"delete from StockStatus where Code = '{data.Code.Code}'", conn);
+                var cmd = new SqlCommand($"delete from StockStatus where Code = '{data.Code.Code}'", conn);
                 cmd.ExecuteNonQuery();
-                cmd = new SQLiteCommand($"INSERT INTO StockStatus(Code, Exchange, Name, Price, ZhangFuDianShu, ZhangFuBiLv, ZuoShou, JinKai, ZuiGao, ZuiDi, ChengJiaoLiang, ChengJiaoE, ZongShiZhi, LiuTongShiZhi, HuanShouLv, ShiJingLv, ZhenFu, ShiYingLv, Timestamp) VALUES (@Code, @Exchange, @Name, @Price, @ZhangFuDianShu, @ZhangFuBiLv, @ZuoShou, @JinKai, @ZuiGao, @ZuiDi, @ChengJiaoLiang, @ChengJiaoE, @ZongShiZhi, @LiuTongShiZhi, @HuanShouLv, @ShiJingLv, @ZhenFu, @ShiYingLv, @Timestamp)", conn);
+                cmd.Dispose();
+                cmd = new SqlCommand($"INSERT INTO StockStatus(Code, Exchange, Name, Price, ZhangFuDianShu, ZhangFuBiLv, ZuoShou, JinKai, ZuiGao, ZuiDi, ChengJiaoLiang, ChengJiaoE, ZongShiZhi, LiuTongShiZhi, HuanShouLv, ShiJingLv, ZhenFu, ShiYingLv, Timestamp) VALUES (@Code, @Exchange, @Name, @Price, @ZhangFuDianShu, @ZhangFuBiLv, @ZuoShou, @JinKai, @ZuiGao, @ZuiDi, @ChengJiaoLiang, @ChengJiaoE, @ZongShiZhi, @LiuTongShiZhi, @HuanShouLv, @ShiJingLv, @ZhenFu, @ShiYingLv, @Timestamp)", conn);
                 cmd.Parameters.Clear();
-                cmd.Parameters.Add(new SQLiteParameter("@Code", data.Code.Code));
-                cmd.Parameters.Add(new SQLiteParameter("@Exchange", data.Code.Exchange.ToString()));
-                cmd.Parameters.Add(new SQLiteParameter("@Name", data.Name));
-                cmd.Parameters.Add(new SQLiteParameter("@Price", data.Price));
-                cmd.Parameters.Add(new SQLiteParameter("@ZhangFuDianShu", data.ZhangFuDianShu));
-                cmd.Parameters.Add(new SQLiteParameter("@ZhangFuBiLv", data.ZhangFuBiLv));
-                cmd.Parameters.Add(new SQLiteParameter("@ZuoShou", data.ZuoShou));
-                cmd.Parameters.Add(new SQLiteParameter("@JinKai", data.JinKai));
-                cmd.Parameters.Add(new SQLiteParameter("@ZuiGao", data.ZuiGao));
-                cmd.Parameters.Add(new SQLiteParameter("@ZuiDi", data.ZuiDi));
-                cmd.Parameters.Add(new SQLiteParameter("@ChengJiaoLiang", data.ChengJiaoLiang));
-                cmd.Parameters.Add(new SQLiteParameter("@ChengJiaoE", data.ChengJiaoE));
-                cmd.Parameters.Add(new SQLiteParameter("@ZongShiZhi", data.ZongShiZhi));
-                cmd.Parameters.Add(new SQLiteParameter("@LiuTongShiZhi", data.LiuTongShiZhi));
-                cmd.Parameters.Add(new SQLiteParameter("@HuanShouLv", data.HuanShouLv));
-                cmd.Parameters.Add(new SQLiteParameter("@ShiJingLv", data.ShiJingLv));
-                cmd.Parameters.Add(new SQLiteParameter("@ZhenFu", data.ZhenFu));
-                cmd.Parameters.Add(new SQLiteParameter("@ShiYingLv", data.ShiYingLv));
-                cmd.Parameters.Add(new SQLiteParameter("@ZhenFu", data.ZhenFu));
-                cmd.Parameters.Add(new SQLiteParameter("@ShiYingLv", data.ShiYingLv == "亏损"? "0" : data.ShiYingLv));
-                cmd.Parameters.Add(new SQLiteParameter("@Timestamp", data.Timestamp));
+                cmd.Parameters.Add(new SqlParameter("@Code", data.Code.Code));
+                cmd.Parameters.Add(new SqlParameter("@Exchange", data.Code.Exchange.ToString()));
+                cmd.Parameters.Add(new SqlParameter("@Name", data.Name));
+                cmd.Parameters.Add(new SqlParameter("@Price", data.Price));
+                cmd.Parameters.Add(new SqlParameter("@ZhangFuDianShu", data.ZhangFuDianShu));
+                cmd.Parameters.Add(new SqlParameter("@ZhangFuBiLv", data.ZhangFuBiLv));
+                cmd.Parameters.Add(new SqlParameter("@ZuoShou", data.ZuoShou));
+                cmd.Parameters.Add(new SqlParameter("@JinKai", data.JinKai));
+                cmd.Parameters.Add(new SqlParameter("@ZuiGao", data.ZuiGao));
+                cmd.Parameters.Add(new SqlParameter("@ZuiDi", data.ZuiDi));
+                cmd.Parameters.Add(new SqlParameter("@ChengJiaoLiang", data.ChengJiaoLiang));
+                cmd.Parameters.Add(new SqlParameter("@ChengJiaoE", data.ChengJiaoE));
+                cmd.Parameters.Add(new SqlParameter("@ZongShiZhi", data.ZongShiZhi));
+                cmd.Parameters.Add(new SqlParameter("@LiuTongShiZhi", data.LiuTongShiZhi));
+                cmd.Parameters.Add(new SqlParameter("@HuanShouLv", data.HuanShouLv));
+                cmd.Parameters.Add(new SqlParameter("@ShiJingLv", data.ShiJingLv));
+                cmd.Parameters.Add(new SqlParameter("@ZhenFu", data.ZhenFu));
+                cmd.Parameters.Add(new SqlParameter("@ShiYingLv", data.ShiYingLv == "亏损"? "0" : data.ShiYingLv));
+                cmd.Parameters.Add(new SqlParameter("@Timestamp", data.Timestamp));
                 cmd.ExecuteNonQuery();
+                cmd.Dispose();
             }
         }
 
